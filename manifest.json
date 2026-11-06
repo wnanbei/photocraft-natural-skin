@@ -1,0 +1,51 @@
+{
+  "id": "io.github.wnanbei.photocraft.natural-skin",
+  "name": "Natural Skin 自然肌肤",
+  "version": "1.0.0",
+  "kind": "filter",
+  "author": "NanBei.W",
+  "description": "Edge-aware skin smoothing. Strength=45, Radius=6 is a gentle starting point. Skin_Only is a colour heuristic, not face recognition. RGB only; alpha and HDR pixels are preserved. Show_Mask previews the affected area.",
+  "params": {
+    "Strength": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "default": 45
+    },
+    "Radius": {
+      "type": "int",
+      "min": 1,
+      "max": 20,
+      "default": 6,
+      "unit": "px"
+    },
+    "Edge_Protection": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "default": 70
+    },
+    "Texture": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "default": 60
+    },
+    "Skin_Only": {
+      "type": "bool",
+      "default": true
+    },
+    "Skin_Range": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "default": 60
+    },
+    "Show_Mask": {
+      "type": "bool",
+      "default": false
+    }
+  },
+  "overlap": 40,
+  "area": "content"
+}

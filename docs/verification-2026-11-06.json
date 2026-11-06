@@ -1,0 +1,46 @@
+{
+  "abi": 1,
+  "wasmBytes": 31263,
+  "imports": 0,
+  "syntheticNoiseVarianceRatio": 0.5271791796369818,
+  "bluePixelsMaxChange": 0,
+  "checks": [
+    "native kernel tests separately",
+    "ABI and manifest",
+    "skin smoothing and blue protection",
+    "edge retention",
+    "texture control",
+    "texture protection invariant under uniform alpha scaling",
+    "zero strength identity",
+    "alpha / transparent / HDR / NaN preservation",
+    "seam-free independent strips at radii 1, 6 and 20",
+    "invalid ABI inputs rejected",
+    "PhotoCraft selection isolates changes",
+    "PhotoCraft Undo restores original",
+    "PhotoCraft RGB 16-bit and 32-bit processing/save"
+  ],
+  "host": {
+    "version": "photocraft-cli 0.20.2 (7c12f6471, 2026-11-05)",
+    "width": 1536,
+    "height": 1024,
+    "radius": 20,
+    "seconds": 3.8617684160000003,
+    "max8bitDifferenceFromUnsplitWasm": 1
+  },
+  "date": "2026-11-06",
+  "plugin": {
+    "id": "io.github.wnanbei.photocraft.natural-skin",
+    "name": "Natural Skin 自然肌肤",
+    "version": "1.0.0"
+  },
+  "nativeKernelTestsPassed": 6,
+  "sha256": "7b1e4c81e9bf3a0fe38c49d526ee401fbd3cbe41329a39b3986e75e03890574b",
+  "validation": {
+    "format": "passed",
+    "nativeClippy": "passed",
+    "wasmClippy": "passed",
+    "actionlint": "passed",
+    "photoCraftGui": "not tested",
+    "ciRemoteRun": "pending at local verification, before first push"
+  }
+}

@@ -1,0 +1,8 @@
+/target/
+/dist/
+/test-output/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

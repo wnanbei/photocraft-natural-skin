@@ -1,0 +1,26 @@
+[package]
+name = "photocraft-natural-skin"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+authors = ["NanBei.W"]
+description = "Natural skin retouching with texture preservation for PhotoCraft ABI v1"
+repository = "https://github.com/wnanbei/photocraft-natural-skin"
+homepage = "https://github.com/wnanbei/photocraft-natural-skin"
+readme = "README.md"
+keywords = ["photocraft", "retouching", "skin", "wasm", "image-processing"]
+categories = ["multimedia::images", "wasm"]
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

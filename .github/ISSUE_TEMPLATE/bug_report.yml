@@ -1,0 +1,35 @@
+name: Bug report / 问题反馈
+description: Report a reproducible plugin or image-processing problem.
+body:
+  - type: input
+    id: plugin_version
+    attributes:
+      label: Plugin version / 插件版本
+      placeholder: Natural Skin 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: PhotoCraft version and OS / 主程序版本与系统
+      placeholder: PhotoCraft 0.20.2, macOS, Apple Silicon
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps and parameters / 复现步骤与参数
+      description: Include image mode/bit depth, selection, plugin controls, and any error text.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result / 预期与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Optional reproduction image / 可选复现图片
+      description: A synthetic image or a shareable crop is sufficient. Do not upload private portraits.
