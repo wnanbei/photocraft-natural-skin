@@ -1,0 +1,112 @@
+{
+  "date": "2026-11-09",
+  "conclusion": "macOS action -> resident companion -> original PhotoCraft window/new document verified",
+  "hostVersion": "photocraft 0.21.0 (efb7ebd0c, 2026-11-06)",
+  "system": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "hostControlEnabled": false,
+  "hostPreferencesIntegrations": {
+    "allowAgentControl": false,
+    "controlPort": 0
+  },
+  "testBundle": "copied bundle identifier and ad-hoc signature changed for isolation; instruction section matches installed original",
+  "photoCraftCodeModified": false,
+  "unitTestsPassed": 40,
+  "strictClippy": "passed with GUI/all targets",
+  "windows": "cross-target GUI check passed; native Windows handoff/runtime not tested",
+  "actionInstaller": "native JSON script run from File > Scripts > Browse, persisted as a three-step action",
+  "actionSteps": [
+    [
+      "layer.duplicate",
+      {
+        "document": "new"
+      }
+    ],
+    [
+      "file.saveACopy",
+      {
+        "path": "<private exchange>/request.pcraft"
+      }
+    ],
+    [
+      "file.close",
+      {
+        "save": "discard"
+      }
+    ]
+  ],
+  "verified": [
+    "real click in Actions Button Mode",
+    "native JSON installer creates action without restarting PhotoCraft",
+    "ignores stale capture on receiver startup",
+    "same resident process reopens hidden window and loads capture-2",
+    "Apply to PhotoCraft from mask preview exports retouched pixels, not mask",
+    "system open-file event reaches existing isolated PhotoCraft window as new document",
+    "source disk bytes unchanged and in-memory re-export bit exact"
+  ],
+  "regressionFixed": "Hidden viewports skip egui ui(); handoff/job event handling moved to App::logic, covered by two regression tests",
+  "parameters": {
+    "Strength": 80,
+    "Radius": 6,
+    "Edge_Protection": 60,
+    "Texture": 65,
+    "Skin_Range": 60,
+    "Skin_Only": true,
+    "Show_Mask": false,
+    "skinBrightening": 0,
+    "skinRosiness": 0
+  },
+  "comparisons": {
+    "capture": {
+      "alphaMaxDifference": 0.0,
+      "depth": 16,
+      "iccBytesEqual": true,
+      "resolutionEqual": true,
+      "transparentPayloadMaxDifference": 0.0,
+      "visibleRgbMaxDifference": 0.0
+    },
+    "sourceAfter": {
+      "alphaMaxDifference": 0.0,
+      "depth": 16,
+      "iccBytesEqual": true,
+      "resolutionEqual": true,
+      "transparentPayloadMaxDifference": 0.0,
+      "visibleRgbMaxDifference": 0.0
+    },
+    "apply": {
+      "alphaMaxDifference": 0.0,
+      "depth": 16,
+      "iccBytesEqual": true,
+      "resolutionEqual": true,
+      "transparentPayloadMaxDifference": 0.0,
+      "visibleRgbMaxDifference": 0.0
+    }
+  },
+  "fixture": {
+    "width": 64,
+    "height": 48,
+    "channels": 4,
+    "depth": 16,
+    "icc": "none in this handoff fixture; profile-byte adapter coverage is in prior desktop precision tests"
+  },
+  "sourceSha256": "314dd0dba8dbdde3127a20d561e67f694a4e41b115aae7797a6e4db20b3d2d63",
+  "guiSha256": "5e22b541d2201af5616b61423ff5531ace78a2a4e4d10567037b0de75b98c053",
+  "backendSha256": "2844a4a9b5d566a3bbb6b53d4bde5c1c60418ff78e7eda44a5f824a6ba4c93e7",
+  "snapshots": {
+    "input": "test-output/handoff-route/run-1794152568919911000/inbox/session-30247-1794185648093451000/capture-2.pcraft",
+    "result": "test-output/handoff-route/run-1794152568919911000/inbox/session-30247-1794185648093451000/natural-skin-result-1794185763021242000.pcraft"
+  },
+  "screenshots": [
+    "test-output/handoff-route/run-1794152568919911000/native-final.png",
+    "test-output/handoff-route/run-1794152568919911000/host-return-final.png"
+  ],
+  "limits": [
+    "Receiver must already be running; no cold start from the host action alone.",
+    "No login item, tray/menubar, automatic installation or update workflow yet.",
+    "ATN does not represent pcraft save steps; use the native JSON installer/store.",
+    "Result returns as a new document, not automatic original-layer replacement.",
+    "With multiple open documents, closing the temporary capture can change the active host tab; source focus restoration is not guaranteed.",
+    "Temporary session-file cleanup/retention remains development work.",
+    "Windows runtime and real-photo acceptance remain pending."
+  ],
+  "cleanup": "Listener stopped via its UI; owned native process exited and probe cleaned up the isolated host. No login item installed."
+}

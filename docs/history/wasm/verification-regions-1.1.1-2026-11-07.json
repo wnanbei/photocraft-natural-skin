@@ -1,0 +1,47 @@
+{
+  "abi": 1,
+  "wasmBytes": 52658,
+  "imports": 0,
+  "syntheticNoiseVarianceRatio": 0.5271791796369818,
+  "bluePixelsMaxChange": 0,
+  "previousReleaseMaxDifference": 0,
+  "skinRegions": {
+    "oracleCases": 48,
+    "stripCases": 6,
+    "maximumOracleDifference": 0,
+    "maximumSeam": 0,
+    "disjointScratchPages": 10
+  },
+  "checks": [
+    "native kernel tests separately",
+    "ABI and manifest",
+    "skin smoothing and blue protection",
+    "edge retention",
+    "texture control",
+    "texture protection invariant under uniform alpha scaling",
+    "neutral settings identity",
+    "skin brightening and positive/negative rosiness",
+    "tone-only mode allocates no scratch memory",
+    "original skin gate reused after smoothing",
+    "tone preserves alpha and mask preview",
+    "mask previews allocate no scratch memory",
+    "alpha / transparent / HDR / NaN preservation",
+    "ROI-sized scratch and no allocation for empty skin bounds",
+    "disjoint skin regions, bounded scratch and independent strips",
+    "seam-free independent strips with/without ROI at radii 1, 6 and 20",
+    "invalid ABI inputs rejected",
+    "PhotoCraft selection isolates changes",
+    "PhotoCraft Undo restores original",
+    "PhotoCraft confirmed smoothing followed by Strength=0 colour pass",
+    "PhotoCraft RGB 16-bit and 32-bit processing/save"
+  ],
+  "twoPassMax8bitDifference": 1,
+  "host": {
+    "version": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+    "width": 1536,
+    "height": 1024,
+    "radius": 20,
+    "seconds": 3.0598717920000005,
+    "max8bitDifferenceFromUnsplitWasm": 1
+  }
+}

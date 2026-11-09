@@ -1,120 +1,56 @@
-# Natural Skin 自然肌肤
+# Natural Skin Native
 
-[English](README.md) · 简体中文
+面向 PhotoCraft 的原生磨皮伴随程序。**首版按 Windows/macOS 共用的 Rust + egui 界面开发**，不修改 PhotoCraft，也不再维护 WASM 版本。
 
-给 PhotoCraft 使用的保留边缘磨皮滤镜。发布版的可安装 `.wasm` 文件位于 [GitHub Releases](https://github.com/wnanbei/photocraft-natural-skin/releases)，也可用源码构建。使用已编译插件不需要 Python、Rust、Claude、模型下载或网络连接。
+当前桌面开发版 **0.2.0** 支持连接设置、单实例唤回、可选登录启动和结果找回；普通启动无需命令行参数。它还提供：打开单层 `.pcraft` 或 RGB TIFF、后台预览、原图/结果切换、皮肤蒙版、参数调节、取消、阶段及耗时显示、全分辨率导出新 `.pcraft`。预览基础缓存在进程内复用，连续拖动参数时丢弃过期结果。
 
-已在 macOS **PhotoCraft 0.20.2（7c12f6471）自带的命令行引擎**中实际安装、执行和导出验证。接口为 PhotoCraft WebAssembly ABI v1；同一文件按接口设计可用于 macOS、Windows、Linux 和网页构建，但本次没有在 Windows/Linux 或网页端实测，也没有验证 GUI 的实时预览性能。
+[English](README.md) · [本轮开发与验证](docs/native-development-2026-11-08.zh-CN.md) · [最初可行性研究](docs/native-feasibility-2026-11-08.zh-CN.md) · [开发顺序](docs/native-roadmap.zh-CN.md)
 
-CI 使用单个 Ubuntu 任务完成编译、测试和打包，生成一份跨平台 `.wasm` 文件。各平台 PhotoCraft 的实际兼容性仍需在相应主程序中验证。
+## 构建和使用
 
-## 安装
-
-1. 把 `NaturalSkin-<版本>.wasm` 保存到一个固定文件夹，例如 `NaturalSkin-1.0.0.wasm`。
-2. 在 PhotoCraft 打开 **Filter（滤镜）→ Plug-ins（插件）→ Install Plug-in…（安装插件）**，选择这个 `.wasm` 文件。
-3. 在 **Filter → Plug-ins** 中找 **Natural Skin 自然肌肤**。
-
-PhotoCraft 0.20.2 的插件加载按进程保存。为了下次启动仍然能找到它，进入 **Edit → Preferences → Plug-ins**，启用 **Use Additional Plug-ins Folder**，把 **Additional Plug-ins Folder** 指向第 1 步保存插件的文件夹。`.wasm` 应直接放在该文件夹内，不要放在更深一层子文件夹。
-
-上述入口来自 [PhotoCraft 0.20.2 官方插件说明](https://github.com/storytold/photocraft/blob/v0.20.2/docs/plugins.md)。不同界面语言可能使用不同译名；英文名称可用于对照。
-
-## 第一次使用
-
-1. 打开 RGB 照片，复制照片图层，在副本上处理。
-2. 选中照片的像素图层缩略图；不要选图层蒙版、Alpha 通道或快速蒙版。
-3. 用套索等工具选出要处理的皮肤，适当羽化边缘。没有选区时会处理整个图层中符合条件的像素。
-4. 执行 **Natural Skin 自然肌肤**，先用默认值：`Strength=45`、`Radius=6`、`Edge_Protection=70`、`Texture=60`。
-5. 如需查看处理范围，打开 `Show_Mask`：白色表示较强作用范围，黑色表示不处理，中间灰色表示部分作用。
-6. **正式磨皮前把 `Show_Mask` 关闭**。保持开启并确定会把灰度遮罩预览写进照片；这是调试显示模式，此时可撤销。
-7. 确定后比较副本与原图，需要时降低副本图层的不透明度。每次滤镜执行可用一次 Undo 撤销。
-
-本滤镜直接平滑像素，不会自动创建高低频图层组，也不瘦脸、不改变五官。
-
-## 参数对照
-
-插件参数由 PhotoCraft 自动生成面板，所以参数键为英文。
-
-| 参数 | 中文含义 | 范围 / 默认值 | 调整建议 |
-|---|---|---|---|
-| Strength | 磨皮强度 | 0–100 / 45 | 先用 30–50。0 完全不改动像素（Show_Mask 关闭时）。 |
-| Radius | 作用半径 | 1–20 像素 / 6 | 较小图片先用 3–6，大图先用 8–12。过大可能影响细小结构。 |
-| Edge_Protection | 边缘保护 | 0–100 / 70 | 越高越保护明显明暗边缘，同时磨皮更温和。 |
-| Texture | 纹理保留 | 0–100 / 60 | 越高越保留细小局部纹理。想更柔和时降低。 |
-| Skin_Only | 仅肤色区域 | 开 / 开 | 建议保持开启；有精确皮肤选区时也可关闭。 |
-| Skin_Range | 肤色识别范围 | 0–100 / 60 | 提高可覆盖更多偏冷、偏红的肤色，但也更容易匹配暖色背景。 |
-| Show_Mask | 显示作用遮罩 | 关 / 关 | 只检查范围时开启，正式磨皮时关闭。 |
-
-可以从以下设置开始，随后根据原图调整：
-
-- 自然人像：Strength 35–45，Radius 4–6，Edge_Protection 75，Texture 70。
-- 更柔和：Strength 55–65，Radius 6–10，Edge_Protection 60，Texture 40。
-- 暖色背景较多：先做皮肤选区，再用自然人像设置。
-
-## 适用范围和限制
-
-- 支持 **RGB 8/16/32 位**；非 RGB 模式会返回错误，不会按错误的颜色通道进行处理。先转 RGB，再选中照片像素图层。
-- `Skin_Only` 是基于颜色的柔和筛选，不是人脸或皮肤语义识别。木头、沙地、暖色衣服、嘴唇也可能被选中；特殊灯光下皮肤也可能漏选。用 `Show_Mask` 检查，并配合选区更可靠。
-- 主要作用是减弱皮肤细小起伏和噪点，不会识别并消除所有痘痘、斑点或皱纹。较大的瑕疵仍适合用修复画笔处理。
-- 保留 Alpha；完全透明像素不参与邻域统计。RGB 中含超出 0–1 的 HDR 值、NaN 或无穷的像素保持不变，避免压坏高光。
-- 关闭 `Skin_Only` 后，选区内非肤色物体也会被柔化。
-- 磨皮较强时仍会损失一部分细节。建议在副本图层上操作，用不透明度控制最终效果。
-- 大图需要更多时间；首次 macOS 验证中 1536×1024、Radius 20 的安装/处理/导出测试约 3.3 秒，此数值不代表其他机器或实时预览的速度。
-- 智能滤镜重新计算时仍需要加载插件文件；本次未验证完整的智能对象往返流程。
-
-## 验证范围
-
-- 6 项 Rust 内核测试：滑动窗口与朴素计算对照、微小图片、透明度、无效/HDR 数据、肤色筛选、参数读取。
-- WebAssembly 无外部导入，ABI 与清单可被真实 PhotoCraft 0.20.2 接受。
-- 合成皮肤纹理测试中默认设置减弱局部噪点；蓝色区域保持不变。
-- Texture 参数、零强度恒等、清晰边缘、Alpha/HDR/NaN 数据保留。
-- Radius 1/6/20 的独立分块与整体计算对照，无超过阈值的边界差异。
-- PhotoCraft 实际处理 1536×1024 图片，输出与不分块 WASM 参考结果的 8 位量化差异不超过 1 个色阶。
-- PhotoCraft 的选区限制、Undo 恢复、RGB 16/32 位处理并保存。
-- 用 scikit-image 收录的 NASA 公有领域 astronaut 样本完成一次默认设置处理和人工看图检查。此单张样本不能代表所有人像效果。
-
-本地复现后，机器可读测试结果在 `test-output/verification.json`；首次本机集成记录见 [docs/verification-2026-11-06.json](docs/verification-2026-11-06.json)。验证使用 CLI 引擎。
-
-## 从源码编译（普通使用者可以跳过）
-
-源码包没有第三方 Rust 依赖。需要 Rust 工具链和 wasm32 标准库；仓库中的 `rust-toolchain.toml` 会选择 stable Rust、目标库和开发组件。完整打包和 WASM 测试还需要 Node.js 24 或更新版本，无需 npm 安装依赖：
+需要 Rust **1.95+**。首次获取锁定依赖后可离线构建，无需 Node.js、Python、模型或云服务：
 
 ```sh
-rustup target add wasm32-unknown-unknown
-node scripts/version.mjs check
-node --test tests/version.test.mjs
-cargo test --locked --offline
-cargo build --release --locked --offline --target wasm32-unknown-unknown
+cargo fetch --locked
+sh build.sh
 ```
 
-编译结果在 `target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm`。执行 `sh build.sh` 或 `./build.ps1` 还会生成带版本号的安装文件、清单、发布说明和校验和，保存到 `dist/`。
-
-可选的 WebAssembly 与主程序集成测试需要 Node.js（没有 npm 依赖）：
+macOS 打开 `dist/Natural Skin.app`；Windows 在本机运行 `build.ps1`，打开 `dist/natural-skin.exe`。也可以直接运行：
 
 ```sh
-node tests/verify.mjs
-node tests/verify.mjs target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm /path/to/photocraft-cli
+cargo run --release --features gui --locked --offline --package natural-skin-companion --bin natural-skin
 ```
 
-算法：带 Alpha 权重的标量引导滤波，叠加局部细节保护与平滑的肤色权重。所有处理均在本地 PhotoCraft 插件沙箱内运行。源码采用 MIT 许可证。
+第一次打开后进入 **Connection**：
 
-## 版本管理
+1. 选择 PhotoCraft 应用，点击 **Enable connection**。程序会保存设置并生成动作安装脚本。
+2. 在 PhotoCraft 中通过 **File → Scripts → Browse** 导入页面所示的 `Install Natural Skin.json`，只需一次。在动作面板中找到 **Natural Skin Send**。
+3. 在 PhotoCraft 中选择普通像素图层，运行该动作。Natural Skin 会接收图层快照并打开预览。
+4. 调参后点击 **Apply to PhotoCraft**，全分辨率处理完成后在 PhotoCraft 打开一个新文档。需要另存时使用 **Export Result**。
 
-首个版本为 **1.0.0**，发布日期和变更见 [CHANGELOG.md](CHANGELOG.md)。版本采用 `主版本.次版本.修订版本`：兼容性修复升 patch，兼容的新功能升 minor，不兼容的插件 ID、参数或存档行为变化升 major；测试版可使用 `1.1.0-alpha.1`、`1.1.0-beta.1`、`1.1.0-rc.1`。
+关闭窗口会最小化并继续接收；**Quit** 完全退出。也可自行勾选 **Start at login**，默认关闭。重开程序会恢复连接，重复启动会唤回已有实例。回传结果保留在程序数据目录；**Connection → Open last result / Show saved files** 可找回。没有自动清理结果，请保存需要的文档后自行管理磁盘空间。
 
-`Cargo.toml` 是权威版本来源。升版脚本会同步 `manifest.json`、`Cargo.lock` 和更新日志，不需要逐个手工修改：
+也可以跳过连接设置，直接打开支持的 `.pcraft` 或 RGB TIFF。详细说明见 [0.2.0 桌面使用与验收](docs/desktop-0.2.zh-CN.md)；早期路线证据见 [动作联动验证](docs/handoff-route-2026-11-09.zh-CN.md)。
+
+macOS `.app` 是本地开发签名，未做发行签名/公证。Windows 已通过目标平台编译检查，但尚未在真实 Windows 机器运行验收；没有把检查结果当作 Windows 安装包。
+
+## 当前能力与范围
+
+- 原生 `.pcraft` 保留 8/16/32 位 RGB/RGBA、Alpha、透明像素下的 RGB、ICC、DPI、画布外图块和边缘图块数据。校验 ZIP、BLAKE3 和资源预算；生成完成后才发布新文件，不覆盖已有输出。
+- 首版仅接收一个可见的普通顶层像素图层，Normal、100% 不透明度/填充，无选区、附加通道、蒙版、剪贴、图层效果或时间线。复杂文档会明确拒绝。
+- 预览最多长边 1024，最多 2 MP；完整处理最多 36 MP。半径/边缘保护变化重建基础缓存，强度/纹理/皮肤范围/调色复用缓存。
+- 预览按缩放比例调整半径，但缩小图上的滤波仍是近似，导出始终从完整原图重新计算。皮肤蒙版只用于查看，导出结果不会变成蒙版。
+- 当前显示按 sRGB 使用；ICC 数据保留，但广色域/HDR 磨皮和显示色彩管理尚未认证。大区域滤波的取消仍有等待时间，尚无剩余时间估算。
+- 原生 TIFF 自身读写可保留透明像素数据；PhotoCraft 的平面 TIFF 导出会丢失完全透明像素下 RGB，因此优先使用 `.pcraft`。
+
+## 命令行后端
 
 ```sh
-node scripts/version.mjs                 # 查看版本
-node scripts/version.mjs check           # 检查一致性
-node scripts/version.mjs bump patch      # 示例：1.0.0 → 1.0.1
-# 也可选择 minor、major，或者指定更高版本：
-node scripts/version.mjs bump 1.1.0-beta.1
+./dist/natural-skin-companion process input.pcraft output.pcraft \
+  '{"Strength":45,"Radius":6,"Texture":60,"skinBrightening":20}'
+./dist/natural-skin-companion --help
 ```
 
-上面的升版命令是备选示例，不需要依次执行。补好当前版本的 `CHANGELOG.md` 后运行 `node scripts/version.mjs prepare`，将 `Unreleased` 替换为发布日期；也可以用 `prepare --date YYYY-MM-DD` 显式指定日期。脚本不会提交代码、创建标签或推送。
+阶段/已用时间写入 stderr，完整文件写完后才报告完成。测试和复现见 [测试方法](docs/testing.md)。旧 WASM 数据仅作为 [历史记录](docs/history/wasm/README.zh-CN.md)。
 
-正式发布使用 `v<版本>` 标签。发布流程会核对版本、日期、更新说明和编译产物；预发布版会标记为 GitHub prerelease，不覆盖 Latest。已发布的标签不能移动，修复应发布新版本。详见[版本规则](docs/versioning.md)和[发布流程](docs/releasing.md)。
-
-## 从 SoftSkin 迁移
-
-这是原 SoftSkin 插件的正式更名版。菜单名改为 **Natural Skin 自然肌肤**，插件 ID 改为 `io.github.wnanbei.photocraft.natural-skin`。如曾安装旧版，请从额外插件文件夹移走旧的 `SoftSkin-*.wasm`，避免同时出现两个菜单。旧版智能滤镜记录的插件 ID 不会自动替换，请保留旧插件直到相关文件迁移完成。
+[MIT](LICENSE)

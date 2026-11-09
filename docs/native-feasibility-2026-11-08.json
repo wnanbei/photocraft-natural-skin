@@ -1,0 +1,525 @@
+{
+  "date": "2026-11-08",
+  "status": "conditionally feasible; runnable CLI backend, no GUI",
+  "constraints": {
+    "modifyPhotoCraft": false,
+    "maintainWasmProduct": false
+  },
+  "companionVersion": "0.1.0",
+  "photocraftVersion": "0.21.0 (efb7ebd0c, 2026-11-06)",
+  "validation": {
+    "localFormat": "passed",
+    "localStrictClippy": "passed",
+    "unitTests": {
+      "passed": 25,
+      "failed": 0
+    },
+    "remoteCI": "not run",
+    "desktop": "isolated macOS arm64 instance, synthetic fixtures only",
+    "rustControlClientConnected": true,
+    "liveStaleGuardRejectedChange": true,
+    "precisionCases": [
+      {
+        "depth": 8,
+        "mode": "identity",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.6666666865348816,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 8,
+        "mode": "retouch",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.6666666865348816,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 16,
+        "mode": "identity",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.6650034189224243,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 16,
+        "mode": "retouch",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.6650034189224243,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 32,
+        "mode": "identity",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.6649999618530273,
+          "visibleRgbMaxDifference": 5.960464477539063e-08
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 5.960464477539063e-08
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 32,
+        "mode": "retouch",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.6649999618530273,
+          "visibleRgbMaxDifference": 5.960464477539063e-08
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 5.960464477539063e-08
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 48,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 64
+        },
+        "undoRestoresLayers": true
+      }
+    ],
+    "rejectedMethods": [
+      {
+        "method": "doc.render",
+        "command": null,
+        "reason": "unknown method `doc.render`"
+      },
+      {
+        "method": "engine.execute",
+        "command": "file.saveACopy",
+        "reason": "automation command `file.saveACopy` uses ambient filesystem paths and is disabled; use capability-scoped document methods"
+      },
+      {
+        "method": "engine.execute",
+        "command": "file.export.layersToFiles",
+        "reason": "automation command `file.export.layersToFiles` uses ambient filesystem paths and is disabled; use capability-scoped document methods"
+      },
+      {
+        "method": "engine.execute",
+        "command": "file.placeEmbedded",
+        "reason": "automation command `file.placeEmbedded` uses ambient filesystem paths and is disabled; use capability-scoped document methods"
+      }
+    ],
+    "rawSnapshot": {
+      "formatVersion": 1,
+      "generator": "photocraft-format 0.21.0",
+      "tileBytes": 1048576,
+      "rawPixelMaximumDifference": 0.0,
+      "transparentPayloadMaximumDifference": 0.0,
+      "metadataProfileReferencePresent": true,
+      "resolutionDpi": 300.0,
+      "proofOnly": "Read-only Python ZIP/zstd inspection; the native pcraft reader/writer is not implemented."
+    }
+  },
+  "performance": {
+    "measuredAt": "2026-11-08T12:23:50.483693+00:00",
+    "system": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "cpuModel": "not collected (sandbox sysctl restriction)",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+    "executableSha256": "c84d5c027f444cba0bafb15d828eb3fc1ea7dfad62c8d02e1ba6486dd74742b8",
+    "cases": [
+      {
+        "command": [
+          "bench-preview",
+          512,
+          384
+        ],
+        "result": {
+          "basisBytes": 4718592,
+          "firstFrameMs": 11.034708,
+          "height": 384,
+          "medianRemixMs": 4.080833,
+          "remixMs": [
+            4.070416000000001,
+            4.076792,
+            4.080833,
+            4.081334,
+            4.0905000000000005
+          ],
+          "timing": "native preview source copy + cached mixing; host transfer, TIFF I/O and display upload excluded",
+          "width": 512
+        }
+      },
+      {
+        "command": [
+          "bench-preview",
+          1024,
+          768
+        ],
+        "result": {
+          "basisBytes": 18874368,
+          "firstFrameMs": 48.703875000000004,
+          "height": 768,
+          "medianRemixMs": 16.399333,
+          "remixMs": [
+            16.384333,
+            16.393625,
+            16.399333,
+            16.499083000000002,
+            16.579583
+          ],
+          "timing": "native preview source copy + cached mixing; host transfer, TIFF I/O and display upload excluded",
+          "width": 1024
+        }
+      },
+      {
+        "command": [
+          "bench",
+          1024,
+          768
+        ],
+        "result": {
+          "height": 768,
+          "medianMs": 36.940625,
+          "nativeMs": [
+            36.678250000000006,
+            36.940625,
+            38.365875
+          ],
+          "scratchBytes": 22020096,
+          "timing": "allocation + native kernel only; source construction, TIFF I/O and host transfer excluded",
+          "width": 1024
+        }
+      },
+      {
+        "command": [
+          "bench",
+          6000,
+          4000
+        ],
+        "result": {
+          "height": 4000,
+          "medianMs": 1309.463833,
+          "nativeMs": [
+            1300.9087909999998,
+            1309.463833,
+            1615.2682920000002
+          ],
+          "scratchBytes": 672000000,
+          "timing": "allocation + native kernel only; source construction, TIFF I/O and host transfer excluded",
+          "width": 6000
+        }
+      }
+    ]
+  },
+  "limitations": [
+    "No finished GUI, launcher, production exchange coordinator or installer.",
+    "Native pcraft reader/writer is not implemented; raw-tile evidence is read-only fixture-specific Python inspection.",
+    "Flattened TIFF capture loses RGB under alpha=0.",
+    "Source guard is not atomic compare-and-apply; prefer output file/new document.",
+    "First scope: sRGB, one top-level Normal pixel layer at full opacity/fill without masks/clipping/effects/selection.",
+    "ICC bytes preserved, display colour management and HDR retouching not certified.",
+    "Coarse cancellation during large filter/cache-preparation regions; ETA not implemented.",
+    "36 MP full-image cap; 2 MP preview cap; 24 MP scratch alone 672000000 bytes.",
+    "Timings exclude source construction, host capture/return, TIFF I/O and display upload; no cross-WASM speedup ratio.",
+    "No Windows/Linux desktop verification or real-photo end-to-end acceptance."
+  ],
+  "evidenceFiles": {
+    "desktop": "test-output/native-feasibility/run-1794140477891417000/desktop-control.json",
+    "performance": "test-output/native-feasibility/native-performance.json",
+    "raw": "test-output/native-feasibility/raw-snapshot.json"
+  }
+}

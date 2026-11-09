@@ -1,0 +1,246 @@
+{
+  "date": "2026-11-07",
+  "pluginVersion": "1.1.1",
+  "nativeKernelTestsPassed": 15,
+  "versionToolTestsPassed": 12,
+  "validation": {
+    "format": "passed",
+    "nativeClippy": "passed",
+    "wasmClippy": "passed",
+    "integration": "PhotoCraft CLI; GUI drag performance not measured"
+  },
+  "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373",
+  "verification": {
+    "abi": 1,
+    "wasmBytes": 47842,
+    "imports": 0,
+    "syntheticNoiseVarianceRatio": 0.5271791796369818,
+    "bluePixelsMaxChange": 0,
+    "previousReleaseMaxDifference": 0,
+    "checks": [
+      "native kernel tests separately",
+      "ABI and manifest",
+      "skin smoothing and blue protection",
+      "edge retention",
+      "texture control",
+      "texture protection invariant under uniform alpha scaling",
+      "neutral settings identity",
+      "skin brightening and positive/negative rosiness",
+      "tone-only mode allocates no scratch memory",
+      "original skin gate reused after smoothing",
+      "tone preserves alpha and mask preview",
+      "mask previews allocate no scratch memory",
+      "alpha / transparent / HDR / NaN preservation",
+      "ROI-sized scratch and no allocation for empty skin bounds",
+      "seam-free independent strips with/without ROI at radii 1, 6 and 20",
+      "invalid ABI inputs rejected",
+      "PhotoCraft selection isolates changes",
+      "PhotoCraft Undo restores original",
+      "PhotoCraft confirmed smoothing followed by Strength=0 colour pass",
+      "PhotoCraft RGB 16-bit and 32-bit processing/save"
+    ],
+    "twoPassMax8bitDifference": 1,
+    "host": {
+      "version": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "width": 1536,
+      "height": 1024,
+      "radius": 20,
+      "seconds": 2.5887923330000002,
+      "max8bitDifferenceFromUnsplitWasm": 1
+    }
+  },
+  "performance": [
+    {
+      "wasm": "photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 3,
+      "fixture": "dense",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "before-roi.wasm",
+          "sha256": "fd3c76415111c80908b45a3256de5162353944aa80111e85b1ccf46fe0fff97b"
+        },
+        {
+          "build": "candidate",
+          "wasm": "photocraft_natural_skin.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-default",
+          "milliseconds": [
+            2261.040958,
+            2229.474208,
+            2215.693916
+          ],
+          "medianMs": 2229.474208
+        },
+        {
+          "build": "candidate",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-default",
+          "milliseconds": [
+            2196.3219579999995,
+            2185.4143330000006,
+            2193.3164579999993
+          ],
+          "medianMs": 2193.3164579999993
+        },
+        {
+          "build": "reference",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-texture0",
+          "milliseconds": [
+            2235.002917,
+            2222.4050420000003,
+            2217.6732090000005
+          ],
+          "medianMs": 2222.4050420000003
+        },
+        {
+          "build": "candidate",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-texture0",
+          "milliseconds": [
+            1806.278709000002,
+            1764.195667,
+            1765.346666999998
+          ],
+          "medianMs": 1765.346666999998
+        },
+        {
+          "build": "reference",
+          "width": 1536,
+          "height": 1024,
+          "mode": "tone-only",
+          "milliseconds": [
+            593.1275840000017,
+            585.8961249999993,
+            584.0789159999986
+          ],
+          "medianMs": 585.8961249999993
+        },
+        {
+          "build": "candidate",
+          "width": 1536,
+          "height": 1024,
+          "mode": "tone-only",
+          "milliseconds": [
+            585.2772499999992,
+            583.8365830000002,
+            584.8070000000007
+          ],
+          "medianMs": 584.8070000000007
+        }
+      ]
+    },
+    {
+      "wasm": "photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 3,
+      "fixture": "sparse",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "before-roi.wasm",
+          "sha256": "fd3c76415111c80908b45a3256de5162353944aa80111e85b1ccf46fe0fff97b"
+        },
+        {
+          "build": "candidate",
+          "wasm": "photocraft_natural_skin.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-default",
+          "milliseconds": [
+            1699.568666,
+            1682.927458,
+            1701.6273339999998
+          ],
+          "medianMs": 1699.568666
+        },
+        {
+          "build": "candidate",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-default",
+          "milliseconds": [
+            655.0012080000006,
+            646.8022080000001,
+            657.9825419999997
+          ],
+          "medianMs": 655.0012080000006
+        },
+        {
+          "build": "reference",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-texture0",
+          "milliseconds": [
+            1718.7239579999996,
+            1684.0411249999997,
+            1741.1643750000003
+          ],
+          "medianMs": 1718.7239579999996
+        },
+        {
+          "build": "candidate",
+          "width": 1536,
+          "height": 1024,
+          "mode": "effect-texture0",
+          "milliseconds": [
+            574.4977500000005,
+            571.3756670000002,
+            570.6123329999991
+          ],
+          "medianMs": 571.3756670000002
+        },
+        {
+          "build": "reference",
+          "width": 1536,
+          "height": 1024,
+          "mode": "tone-only",
+          "milliseconds": [
+            349.0104999999985,
+            349.1068749999995,
+            348.82324999999946
+          ],
+          "medianMs": 349.0104999999985
+        },
+        {
+          "build": "candidate",
+          "width": 1536,
+          "height": 1024,
+          "mode": "tone-only",
+          "milliseconds": [
+            349.166792,
+            347.9300830000011,
+            347.1872920000005
+          ],
+          "medianMs": 347.9300830000011
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "version": "0.2.0",
+  "status": "development",
+  "date": "2026-11-09",
+  "os": "macOS arm64",
+  "hostVersion": "PhotoCraft 0.21.0",
+  "runDirectory": "/Users/wnanbei/code/photocraft-natural-skin/test-output/desktop-workflow/run-1794233878196608000",
+  "build": {
+    "run": "/Users/wnanbei/code/photocraft-natural-skin/test-output/desktop-workflow/run-1794233878196608000",
+    "hostPid": 38174,
+    "nativePid": 38175,
+    "agentControl": false,
+    "sourceSha256": "87346a2fb20c4d9e78258a80169edca5e18fb67e1775ab082a298e891bcb7b60",
+    "guiSha256": "f3fd2e6dc21e5a1006b6d8b02f1ef750a2780cd35ce7c4d131084926f881d948",
+    "backendSha256": "7ad7497f6ae83bf8c0a2863a0378d60afbd718ae13115e1bd3f81b0e1efe4e2f",
+    "installer": "/Users/wnanbei/code/photocraft-natural-skin/test-output/desktop-workflow/run-1794233878196608000/state/Install Natural Skin.json",
+    "desktopMode": true
+  },
+  "sourceSha256Unchanged": true,
+  "exportMatchesCli": {
+    "alphaMaxDifference": 0.0,
+    "depth": 16,
+    "iccBytesEqual": true,
+    "resolutionEqual": true,
+    "transparentPayloadMaxDifference": 0.0,
+    "visibleRgbMaxDifference": 0.0
+  },
+  "captureMatchesSource": {
+    "alphaMaxDifference": 0.0,
+    "depth": 16,
+    "iccBytesEqual": true,
+    "resolutionEqual": true,
+    "transparentPayloadMaxDifference": 0.0,
+    "visibleRgbMaxDifference": 0.0
+  },
+  "fixture": {
+    "width": 64,
+    "height": 48,
+    "depth": 16,
+    "channels": 4,
+    "dpi": 300,
+    "icc": false
+  },
+  "manualChecks": [
+    "first-run setup",
+    "GUI-generated installer imported through Scripts menu",
+    "selected-layer Send action",
+    "minimize and receive again",
+    "normal restart restores listening",
+    "second launch reactivates owner",
+    "native app chooser",
+    "last result opens",
+    "mask preview does not affect export",
+    "880x620 client window and settings scroll",
+    "fixed visible settings error at minimum window size",
+    "invalid path keeps the previous working target",
+    "failure clears stale success notice"
+  ],
+  "loginStartupActualAccountEnabled": false,
+  "loginStartupTest": "isolated LaunchAgent file only",
+  "windowsRuntimeValidated": false,
+  "remoteCiRun": false,
+  "testsPassed": 46,
+  "clippy": "passed strict workspace all targets GUI",
+  "windowsCheck": "passed x86_64-pc-windows-gnu GUI all targets",
+  "distributionSigning": "macOS ad-hoc only",
+  "limitations": [
+    "single ordinary raster subset",
+    "36 MP full source cap",
+    "sRGB display assumption, no completed CMS",
+    "no ETA",
+    "retained capture/result files require manual management",
+    "no Windows runtime or real-photo acceptance"
+  ],
+  "pixelValidationGuiSha256": "35d0d456f248b3d78c81607e7b625e66c2dc748865c2919709ee8f82164da559",
+  "changesAfterPixelValidation": "Only settings error presentation and success status copy; processing backend hash unchanged.",
+  "uiReview": {
+    "disposition": "ship",
+    "scope": "P2 settings-failure feedback fix, macOS development build; verdict pass resolved; no Windows or dark-mode certification"
+  },
+  "processesStopped": true,
+  "captures": {
+    "connection-macos.png": {
+      "width": 2240,
+      "height": 1584,
+      "sha256": "476b19bd465241e68652b193b86d17738bddd9e397b00246c911aa331a7fad8a"
+    },
+    "preview-macos.png": {
+      "width": 2240,
+      "height": 1584,
+      "sha256": "711e21e64d1753bdd2aa43ed2c9706dad7eecaa552a439a694ccd5e9a8d0fc15"
+    },
+    "connection-small-macos.png": {
+      "width": 1760,
+      "height": 1304,
+      "sha256": "81ab0e1328b5362e6ea61e5178b35f81e5df204ba49ed11943cc149b6996a343"
+    },
+    "connection-bottom-small-macos.png": {
+      "width": 1760,
+      "height": 1304,
+      "sha256": "f3fd8fae5e84967bab9ec1d2378b3c47dd5be5c29bfded134e6c0c0957816db4"
+    },
+    "preview-small-macos.png": {
+      "width": 1760,
+      "height": 1304,
+      "sha256": "550cc5da1ec388255c9f59d611b634cf1627b866a88e6c58e995af14e306259f"
+    },
+    "connection-error-small-macos.png": {
+      "width": 1760,
+      "height": 1304,
+      "sha256": "5b5a0628bb225394a4c3b6ff092e6b7c4ca4bcb8cbdde2b49998bd079bfabbb0"
+    }
+  },
+  "macosArchiveSha256": "be56330801b5c8bba1d9330915acbbef2c6b60a356890c85e713396e8934ed10"
+}

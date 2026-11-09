@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T15:11:48.087210+00:00",
+  "title": "Design System: Natural Skin",
+  "extensions": {
+    "colorMeta": {
+      "selection-light": {
+        "role": "primary",
+        "displayName": "Selection Blue · light",
+        "tonalRamp": [
+          "oklch(15% 0.025 235)",
+          "oklch(26% 0.05 235)",
+          "oklch(38% 0.075 235)",
+          "oklch(49% 0.10 235)",
+          "oklch(61% 0.12 235)",
+          "oklch(72% 0.10 235)",
+          "oklch(84% 0.06 235)",
+          "oklch(95% 0.02 235)"
+        ]
+      },
+      "selection-dark": {
+        "role": "primary",
+        "displayName": "Selection Blue · dark",
+        "tonalRamp": [
+          "oklch(15% 0.025 235)",
+          "oklch(26% 0.05 235)",
+          "oklch(38% 0.075 235)",
+          "oklch(49% 0.10 235)",
+          "oklch(61% 0.12 235)",
+          "oklch(72% 0.10 235)",
+          "oklch(84% 0.06 235)",
+          "oklch(95% 0.02 235)"
+        ]
+      },
+      "canvas-charcoal": {
+        "role": "neutral",
+        "displayName": "Canvas Charcoal",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "panel-light": {
+        "role": "neutral",
+        "displayName": "Panel · light",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "panel-dark": {
+        "role": "neutral",
+        "displayName": "Panel · dark",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "text-light": {
+        "role": "neutral",
+        "displayName": "Text · light",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "text-dark": {
+        "role": "neutral",
+        "displayName": "Text · dark",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "control-light": {
+        "role": "neutral",
+        "displayName": "Control · light",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "control-dark": {
+        "role": "neutral",
+        "displayName": "Control · dark",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "error-light": {
+        "role": "error",
+        "displayName": "Error Deep Red · light",
+        "tonalRamp": [
+          "oklch(15% 0.03 29)",
+          "oklch(26% 0.08 29)",
+          "oklch(38% 0.13 29)",
+          "oklch(49% 0.18 29)",
+          "oklch(61% 0.23 29)",
+          "oklch(72% 0.17 29)",
+          "oklch(84% 0.09 29)",
+          "oklch(95% 0.025 29)"
+        ]
+      },
+      "error-dark": {
+        "role": "error",
+        "displayName": "Error Pale Red · dark",
+        "tonalRamp": [
+          "oklch(15% 0.03 29)",
+          "oklch(26% 0.08 29)",
+          "oklch(38% 0.13 29)",
+          "oklch(49% 0.18 29)",
+          "oklch(61% 0.23 29)",
+          "oklch(72% 0.17 29)",
+          "oklch(84% 0.09 29)",
+          "oklch(95% 0.025 29)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Application title",
+        "purpose": "Explicit app identity size; native logical points."
+      },
+      "heading": {
+        "displayName": "Toolkit heading",
+        "purpose": "Empty-state and inspector headings."
+      },
+      "body": {
+        "displayName": "Controls and status",
+        "purpose": "Inherited egui Body and Button size."
+      },
+      "small": {
+        "displayName": "Metadata",
+        "purpose": "Inherited egui Small for file information and notes."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [],
+    "unicodeFontFallback": "Native system fonts for missing glyphs; Chinese filename display verified on macOS."
+  },
+  "components": [
+    {
+      "name": "File action",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Illustrative translation of the native neutral file button; actual font rendering and interaction belong to egui.",
+      "html": "<button class=\"ds-button\">Open Image…</button>",
+      "css": ".ds-button{font-family:\"Ubuntu Light\",sans-serif;font-size:13px;background:#e6e6e6;color:#3c3c3c;border:1px solid transparent;border-radius:6px;padding:7px 12px}.ds-button:hover{background:#dcdcdc;border-color:#696969;color:#000}.ds-button:focus-visible,.ds-button:active{background:#a5a5a5;border-color:#000;outline:1px solid #000;color:#000}.ds-button:disabled{opacity:.5;pointer-events:none}@media(prefers-color-scheme:dark){.ds-button{background:#323232;color:#d7d7d7}.ds-button:hover{background:#404040;border-color:#969696;color:#f5f5f5}.ds-button:focus-visible,.ds-button:active{background:#282828;border-color:#fff;outline-color:#fff;color:#fff}}"
+    },
+    {
+      "name": "Comparison",
+      "kind": "nav",
+      "refersTo": "comparison-light",
+      "description": "Local Original/result comparison, shown with Retouched selected.",
+      "html": "<nav class=\"ds-compare\" aria-label=\"Compare\"><button class=\"ds-choice\">Original</button><button class=\"ds-choice ds-selected\" aria-pressed=\"true\">Retouched</button></nav>",
+      "css": ".ds-compare{display:flex;gap:8px}.ds-choice{font-family:\"Ubuntu Light\",sans-serif;font-size:13px;color:#505050;background:transparent;border:1px solid transparent;border-radius:6px;padding:7px 12px}.ds-choice.ds-selected{background:#90d1ff;color:#00537d}.ds-choice:hover{border-color:#696969}.ds-choice:focus-visible{outline:2px solid #00537d}.ds-choice:active{border-color:#000}@media(prefers-color-scheme:dark){.ds-choice{color:#8c8c8c}.ds-choice.ds-selected{background:#005c80;color:#c0deff}.ds-choice:focus-visible{outline-color:#c0deff}}"
+    },
+    {
+      "name": "Adjustment slider",
+      "kind": "input",
+      "description": "Native labelled slider and numeric value, represented with browser controls for the panel.",
+      "html": "<label class=\"ds-adjust\">Strength<span class=\"ds-row\"><input class=\"ds-range\" type=\"range\" min=\"0\" max=\"100\" value=\"55\"><output class=\"ds-value\">55</output></span></label>",
+      "css": ".ds-adjust{font-family:\"Ubuntu Light\",sans-serif;font-size:13px;display:grid;gap:8px;color:#505050;width:264px}.ds-row{display:flex;align-items:center;gap:8px}.ds-range{flex:1;min-width:0;accent-color:#a5a5a5}.ds-value{background:#e6e6e6;border-radius:6px;padding:7px 12px}.ds-range:hover{accent-color:#696969}.ds-range:focus-visible{outline:2px solid #00537d}.ds-range:active{accent-color:#000}@media(prefers-color-scheme:dark){.ds-adjust{color:#8c8c8c}.ds-value{background:#323232;color:#d7d7d7}.ds-range:focus-visible{outline-color:#c0deff}}"
+    },
+    {
+      "name": "Mask toggle",
+      "kind": "input",
+      "description": "Explicit checkbox for the mask preview.",
+      "html": "<label class=\"ds-toggle\"><input class=\"ds-check\" type=\"checkbox\" checked>Show skin mask</label>",
+      "css": ".ds-toggle{font-family:\"Ubuntu Light\",sans-serif;font-size:13px;display:flex;align-items:center;gap:8px;color:#505050}.ds-check{accent-color:#a5a5a5}.ds-check:hover{accent-color:#696969}.ds-check:focus-visible{outline:2px solid #00537d}.ds-check:active{accent-color:#000}@media(prefers-color-scheme:dark){.ds-toggle{color:#8c8c8c}.ds-check:focus-visible{outline-color:#c0deff}}"
+    },
+    {
+      "name": "Image surround",
+      "kind": "custom",
+      "refersTo": "image-surround",
+      "description": "Constant neutral surround; the sample contains a placeholder rather than a user photo.",
+      "html": "<div class=\"ds-canvas\"><div class=\"ds-image\" role=\"img\" aria-label=\"Image area placeholder\"></div></div>",
+      "css": ".ds-canvas{background:#232527;padding:16px;display:flex;justify-content:center;align-items:center;width:300px;height:180px}.ds-image{width:160px;height:160px;background:#8c8c8c}"
+    },
+    {
+      "name": "Task status",
+      "kind": "custom",
+      "refersTo": "task-status",
+      "description": "Persistent plain-language status with timing detail.",
+      "html": "<div class=\"ds-status\" role=\"status\"><strong class=\"ds-stage\">Preview complete</strong><span class=\"ds-detail\">5 ms · cached filter</span></div>",
+      "css": ".ds-status{font-family:\"Ubuntu Light\",sans-serif;font-size:13px;display:flex;align-items:center;gap:8px;min-height:48px;background:#f8f8f8;color:#505050;border-top:1px solid #bebebe;padding:0 8px}.ds-stage{font-weight:400;color:#000}@media(prefers-color-scheme:dark){.ds-status{background:#1b1b1b;color:#8c8c8c;border-color:#3c3c3c}.ds-stage{color:#fff}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Photo Workbench",
+    "overview": "A restrained desktop photo workbench in Operate mode. The image carries the visual weight; a fixed inspector, file actions and persistent task status support adjustment without competing with it.\n\nThe shared Windows/macOS surface follows egui’s system light/dark preference. Neutral panels, familiar controls and a constant charcoal image surround keep comparison legible. This record describes the implemented native surface, not a web theme.",
+    "keyCharacteristics": [
+      "Image-led workspace with a separate scrolling inspector.",
+      "Toolkit-native states and file dialogs.",
+      "Visible comparison, mask and task state."
+    ],
+    "rules": [
+      {
+        "name": "The Neutral Surround Rule",
+        "body": "Keep the image surround charcoal in both themes; use the toolkit selection accent for the active comparison.",
+        "section": "colors"
+      },
+      {
+        "name": "The Stable Workspace Rule",
+        "body": "Keep file actions and task status visible while the inspector scrolls independently.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Workspace Rule",
+        "body": "Use panel boundaries and tonal contrast for the editing surface; retain toolkit tooltip and native dialog treatments.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do retain the shared desktop layout and system light/dark behavior.",
+      "Do keep labels attached to sliders and expose numeric adjustment values.",
+      "Do distinguish Original, Retouched and Skin mask with text as well as selection state."
+    ],
+    "donts": [
+      "Don't style disabled adjustments as available before an image is ready or during export.",
+      "Don't use the image surround as a decorative accent surface."
+    ]
+  }
+}

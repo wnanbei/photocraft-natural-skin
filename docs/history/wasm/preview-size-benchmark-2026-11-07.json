@@ -1,0 +1,92 @@
+{
+  "wasm": "photocraft_natural_skin.wasm",
+  "runtime": "PhotoCraft CLI / wasmi",
+  "runs": 3,
+  "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+  "platform": "darwin",
+  "arch": "arm64",
+  "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+  "builds": [
+    {
+      "build": "candidate",
+      "wasm": "photocraft_natural_skin.wasm",
+      "sha256": "fd3c76415111c80908b45a3256de5162353944aa80111e85b1ccf46fe0fff97b"
+    }
+  ],
+  "results": [
+    {
+      "build": "candidate",
+      "width": 512,
+      "height": 384,
+      "mode": "mask",
+      "milliseconds": [
+        103.26933399999962,
+        89.61058400000002,
+        88.61612499999956
+      ],
+      "medianMs": 89.61058400000002
+    },
+    {
+      "build": "candidate",
+      "width": 512,
+      "height": 384,
+      "mode": "effect-default",
+      "milliseconds": [
+        593.926125,
+        586.493708,
+        604.3930829999999
+      ],
+      "medianMs": 593.926125
+    },
+    {
+      "build": "candidate",
+      "width": 512,
+      "height": 384,
+      "mode": "effect-radius20",
+      "milliseconds": [
+        558.7005000000008,
+        570.7769999999991,
+        546.346458
+      ],
+      "medianMs": 558.7005000000008
+    },
+    {
+      "build": "candidate",
+      "width": 1024,
+      "height": 768,
+      "mode": "mask",
+      "milliseconds": [
+        162.55166699999972,
+        180.53525000000081,
+        171.15387499999997
+      ],
+      "medianMs": 171.15387499999997
+    },
+    {
+      "build": "candidate",
+      "width": 1024,
+      "height": 768,
+      "mode": "effect-default",
+      "milliseconds": [
+        1185.7626250000012,
+        1162.6347910000004,
+        1219.6606659999998
+      ],
+      "medianMs": 1185.7626250000012
+    },
+    {
+      "build": "candidate",
+      "width": 1024,
+      "height": 768,
+      "mode": "effect-radius20",
+      "milliseconds": [
+        1132.8270000000011,
+        1276.2355000000007,
+        1139.8978750000006
+      ],
+      "medianMs": 1139.8978750000006
+    }
+  ],
+  "date": "2026-11-07",
+  "scope": "Actual PhotoCraft CLI interpreter timings on synthetic fixtures, not GUI first-frame latency or drag frame rate."
+}

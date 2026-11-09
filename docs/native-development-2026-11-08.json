@@ -1,0 +1,457 @@
+{
+  "date": "2026-11-08",
+  "version": "0.1.0",
+  "status": "desktop development build",
+  "framework": "Rust + egui (shared Windows/macOS)",
+  "system": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "photoCraftUnmodified": true,
+  "wasmProductRetired": true,
+  "checks": {
+    "unitTestsPassed": 35,
+    "unitTestsFailed": 0,
+    "strictClippy": "passed with gui and all targets",
+    "windows": "x86_64-pc-windows-gnu all-targets GUI cargo check passed; no executable linking/runtime test",
+    "remoteCI": "configured, not run",
+    "macOSGUI": [
+      "open single-raster pcraft",
+      "all adjustment sliders",
+      "latest cached preview",
+      "original/result switch",
+      "skin mask",
+      "inspector scroll/reset",
+      "unsupported-layer rejection and recovery",
+      "Chinese filename display",
+      "parented native save panel",
+      "Chinese path full-resolution export",
+      "completion/error stage and correct elapsed time"
+    ],
+    "cancellation": "kernel and worker tests passed, including no publication on cancellation; fine-grained cancellation still pending"
+  },
+  "artifacts": {
+    "cliSha256": "092ecdee1ed1b0379339b1b424c811c7055d6125c8ed6c14b7eb6caae2a7a506",
+    "guiStandaloneSha256": "125743fcf0eeadfd171d1e130da232734e9845ddac33b8275150b83a0c9394a0",
+    "macOSBundleExecutableSha256": "6bfbc9fe85ee6288526cf335c34e8a854f5934a8500145ec9fbe5869147810b9",
+    "macOSBundle": "dist/Natural Skin.app",
+    "signing": "local ad-hoc only, verified, not notarized"
+  },
+  "desktopPrecision": {
+    "photocraftVersion": "0.21.0 (efb7ebd0c, 2026-11-06)",
+    "fixture": {
+      "width": 267,
+      "height": 259,
+      "channels": 4,
+      "tileCount": 4
+    },
+    "cases": [
+      {
+        "depth": 8,
+        "mode": "identity",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 8,
+        "mode": "retouch",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 8,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 8,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 16,
+        "mode": "identity",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 16,
+        "mode": "retouch",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 16,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 16,
+          "hdrSamples": 0,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 32,
+        "mode": "identity",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "undoRestoresLayers": true
+      },
+      {
+        "depth": 32,
+        "mode": "retouch",
+        "sourceUnchangedAfterCapture": true,
+        "capture": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "return": {
+          "alphaMaxDifference": 0.0,
+          "depth": 32,
+          "iccBytesEqual": true,
+          "resolutionEqual": true,
+          "transparentPayloadMaxDifference": 0.0,
+          "visibleRgbMaxDifference": 0.0
+        },
+        "captureInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "returnedInfo": {
+          "channels": 4,
+          "depth": 32,
+          "hdrSamples": 1,
+          "height": 259,
+          "iccBytes": 652,
+          "resolution": [
+            2,
+            [
+              300000,
+              1000
+            ],
+            [
+              300000,
+              1000
+            ]
+          ],
+          "width": 267
+        },
+        "undoRestoresLayers": true
+      }
+    ],
+    "rustControlClientConnected": true,
+    "staleGuardRejectsChangedSource": true,
+    "evidence": "test-output/native-feasibility/run-1794151022999364000/desktop-control.json"
+  },
+  "guiExport": {
+    "parameters": {
+      "Strength": 55,
+      "Radius": 6,
+      "Edge_Protection": 60,
+      "Texture": 65,
+      "Skin_Range": 60,
+      "Skin_Only": true,
+      "Show_Mask": false,
+      "skinBrightening": 0,
+      "skinRosiness": 0
+    },
+    "comparisonWithCLI": {
+      "alphaMaxDifference": 0.0,
+      "depth": 16,
+      "iccBytesEqual": true,
+      "resolutionEqual": true,
+      "transparentPayloadMaxDifference": 0.0,
+      "visibleRgbMaxDifference": 0.0
+    },
+    "input": "test-output/native-feasibility/gui-review/皮肤预览验证.pcraft",
+    "output": "test-output/native-feasibility/gui-review/皮肤结果验证.pcraft"
+  },
+  "visualReview": {
+    "disposition": "ship at development-build scope",
+    "corrections": [
+      "failure elapsed time",
+      "user-facing error wording",
+      "light error contrast 6.46:1"
+    ],
+    "screenshots": [
+      "test-output/native-feasibility/gui-review/empty.png",
+      "test-output/native-feasibility/gui-review/loaded.png",
+      "test-output/native-feasibility/gui-review/mask.png",
+      "test-output/native-feasibility/gui-review/error-final.png",
+      "test-output/native-feasibility/gui-review/export-final.png"
+    ],
+    "limits": "macOS light mode; minimum-size, dark-mode and Windows visual acceptance not performed"
+  },
+  "remaining": [
+    "automated PhotoCraft capture/return product coordinator",
+    "real Windows runtime acceptance and installers",
+    "full colour management and wide-gamut/HDR retouch certification",
+    "fine cancellation/progress/ETA",
+    "1:1 preview, real-photo acceptance and peak memory reduction"
+  ]
+}

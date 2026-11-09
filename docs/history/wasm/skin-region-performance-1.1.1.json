@@ -1,0 +1,866 @@
+{
+  "date": "2026-11-07",
+  "version": "1.1.1 (Unreleased)",
+  "scope": "Production adoption; no host, ABI, controls, overlap or guided-filter algorithm changes.",
+  "reference": {
+    "description": "1.1.1 before disjoint-region adoption",
+    "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+  },
+  "candidate": {
+    "sha256": "1d6d73c49ff9d5a8becfd313da8c4779d4e0a8714d0a1a72562cd307d18af5a5",
+    "bytes": 52658
+  },
+  "configuration": {
+    "cell": 64,
+    "maximumPendingRegions": 4,
+    "minimumAreaInCells": 2,
+    "fallbackWorkFraction": 0.7,
+    "denseInteriorSamples": 9,
+    "earlyOccupiedCells": 8,
+    "halo": "2*radius",
+    "hostOverlap": 40
+  },
+  "checks": {
+    "nativeTestsPassed": 18,
+    "versionToolTestsPassed": 12,
+    "format": "passed",
+    "nativeStrictClippy": "passed",
+    "wasmStrictClippy": "passed"
+  },
+  "verification": {
+    "abi": 1,
+    "wasmBytes": 52658,
+    "imports": 0,
+    "syntheticNoiseVarianceRatio": 0.5271791796369818,
+    "bluePixelsMaxChange": 0,
+    "previousReleaseMaxDifference": 0,
+    "skinRegions": {
+      "oracleCases": 48,
+      "stripCases": 6,
+      "maximumOracleDifference": 0,
+      "maximumSeam": 0,
+      "disjointScratchPages": 10
+    },
+    "checks": [
+      "native kernel tests separately",
+      "ABI and manifest",
+      "skin smoothing and blue protection",
+      "edge retention",
+      "texture control",
+      "texture protection invariant under uniform alpha scaling",
+      "neutral settings identity",
+      "skin brightening and positive/negative rosiness",
+      "tone-only mode allocates no scratch memory",
+      "original skin gate reused after smoothing",
+      "tone preserves alpha and mask preview",
+      "mask previews allocate no scratch memory",
+      "alpha / transparent / HDR / NaN preservation",
+      "ROI-sized scratch and no allocation for empty skin bounds",
+      "disjoint skin regions, bounded scratch and independent strips",
+      "seam-free independent strips with/without ROI at radii 1, 6 and 20",
+      "invalid ABI inputs rejected",
+      "PhotoCraft selection isolates changes",
+      "PhotoCraft Undo restores original",
+      "PhotoCraft confirmed smoothing followed by Strength=0 colour pass",
+      "PhotoCraft RGB 16-bit and 32-bit processing/save"
+    ],
+    "twoPassMax8bitDifference": 1,
+    "host": {
+      "version": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "width": 1536,
+      "height": 1024,
+      "radius": 20,
+      "seconds": 3.0598717920000005,
+      "max8bitDifferenceFromUnsplitWasm": 1
+    }
+  },
+  "benchmarks": {
+    "dense": {
+      "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 5,
+      "fixture": "dense",
+      "cases": [
+        [
+          "mask",
+          {
+            "Show_Mask": true
+          }
+        ],
+        [
+          "effect-default",
+          {}
+        ],
+        [
+          "effect-radius20",
+          {
+            "Radius": 20,
+            "Skin_Only": false
+          }
+        ],
+        [
+          "effect-radius20-skin",
+          {
+            "Radius": 20
+          }
+        ],
+        [
+          "effect-texture0",
+          {
+            "Texture": 0
+          }
+        ],
+        [
+          "tone-only",
+          {
+            "Strength": 0,
+            "skinBrightening": 50,
+            "skinRosiness": 30
+          }
+        ]
+      ],
+      "order": "alternating AB/BA per round; installation excluded",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "test-output/adoption-1.1.1/before.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        },
+        {
+          "build": "candidate",
+          "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+          "sha256": "1d6d73c49ff9d5a8becfd313da8c4779d4e0a8714d0a1a72562cd307d18af5a5"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            1142.821167,
+            1135.654583,
+            1134.9155,
+            1108.4207910000005,
+            1108.5803749999995
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 1134.9155
+        },
+        {
+          "build": "candidate",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            1108.988833,
+            1183.01575,
+            1126.759709,
+            1104.6934170000004,
+            1105.495291000001
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 1108.988833
+        }
+      ]
+    },
+    "fragmented": {
+      "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 5,
+      "fixture": "fragmented",
+      "cases": [
+        [
+          "mask",
+          {
+            "Show_Mask": true
+          }
+        ],
+        [
+          "effect-default",
+          {}
+        ],
+        [
+          "effect-radius20",
+          {
+            "Radius": 20,
+            "Skin_Only": false
+          }
+        ],
+        [
+          "effect-radius20-skin",
+          {
+            "Radius": 20
+          }
+        ],
+        [
+          "effect-texture0",
+          {
+            "Texture": 0
+          }
+        ],
+        [
+          "tone-only",
+          {
+            "Strength": 0,
+            "skinBrightening": 50,
+            "skinRosiness": 30
+          }
+        ]
+      ],
+      "order": "alternating AB/BA per round; installation excluded",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "test-output/adoption-1.1.1/before.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        },
+        {
+          "build": "candidate",
+          "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+          "sha256": "1d6d73c49ff9d5a8becfd313da8c4779d4e0a8714d0a1a72562cd307d18af5a5"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            900.6888749999999,
+            895.1639169999999,
+            857.2907499999997,
+            883.8288330000005,
+            878.6097919999993
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 883.8288330000005
+        },
+        {
+          "build": "candidate",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            862.981,
+            876.1862920000001,
+            863.9014580000003,
+            866.2389169999997,
+            854.3628749999989
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 863.9014580000003
+        }
+      ]
+    },
+    "islands": {
+      "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 5,
+      "fixture": "islands",
+      "cases": [
+        [
+          "mask",
+          {
+            "Show_Mask": true
+          }
+        ],
+        [
+          "effect-default",
+          {}
+        ],
+        [
+          "effect-radius20",
+          {
+            "Radius": 20,
+            "Skin_Only": false
+          }
+        ],
+        [
+          "effect-radius20-skin",
+          {
+            "Radius": 20
+          }
+        ],
+        [
+          "effect-texture0",
+          {
+            "Texture": 0
+          }
+        ],
+        [
+          "tone-only",
+          {
+            "Strength": 0,
+            "skinBrightening": 50,
+            "skinRosiness": 30
+          }
+        ]
+      ],
+      "order": "alternating AB/BA per round; installation excluded",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "test-output/adoption-1.1.1/before.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        },
+        {
+          "build": "candidate",
+          "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+          "sha256": "1d6d73c49ff9d5a8becfd313da8c4779d4e0a8714d0a1a72562cd307d18af5a5"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 512,
+          "height": 384,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            234.789333,
+            233.33216700000003,
+            231.986625,
+            232.5796660000001,
+            233.80041700000015
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 233.33216700000003
+        },
+        {
+          "build": "candidate",
+          "width": 512,
+          "height": 384,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            119.35116599999998,
+            119.62758400000001,
+            119.49579200000005,
+            119.37708399999997,
+            120.11141599999996
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 119.49579200000005
+        },
+        {
+          "build": "reference",
+          "width": 512,
+          "height": 384,
+          "mode": "effect-radius20-skin",
+          "params": {
+            "Radius": 20
+          },
+          "milliseconds": [
+            304.21108300000014,
+            304.6861250000002,
+            306.1687500000003,
+            304.63516700000037,
+            304.48904200000015
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 304.63516700000037
+        },
+        {
+          "build": "candidate",
+          "width": 512,
+          "height": 384,
+          "mode": "effect-radius20-skin",
+          "params": {
+            "Radius": 20
+          },
+          "milliseconds": [
+            221.68854199999987,
+            222.11154099999976,
+            221.70804100000032,
+            221.84137499999997,
+            221.792958
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 221.792958
+        },
+        {
+          "build": "reference",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            711.913125,
+            726.3210840000002,
+            733.2338749999999,
+            802.7793330000004,
+            707.9243330000008
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 726.3210840000002
+        },
+        {
+          "build": "candidate",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            344.8057090000002,
+            277.013833,
+            267.631625,
+            559.2737080000006,
+            267.25008400000115
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 277.013833
+        },
+        {
+          "build": "reference",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-radius20-skin",
+          "params": {
+            "Radius": 20
+          },
+          "milliseconds": [
+            770.0392499999998,
+            784.8524589999997,
+            788.5392089999987,
+            770.3454590000001,
+            773.6727500000015
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 773.6727500000015
+        },
+        {
+          "build": "candidate",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-radius20-skin",
+          "params": {
+            "Radius": 20
+          },
+          "milliseconds": [
+            359.03166600000077,
+            357.90783399999964,
+            357.49562499999956,
+            358.79054200000064,
+            365.46929099999943
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 358.79054200000064
+        }
+      ]
+    },
+    "large": {
+      "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 3,
+      "fixture": "islands",
+      "cases": [
+        [
+          "mask",
+          {
+            "Show_Mask": true
+          }
+        ],
+        [
+          "effect-default",
+          {}
+        ],
+        [
+          "effect-radius20",
+          {
+            "Radius": 20,
+            "Skin_Only": false
+          }
+        ],
+        [
+          "effect-radius20-skin",
+          {
+            "Radius": 20
+          }
+        ],
+        [
+          "effect-texture0",
+          {
+            "Texture": 0
+          }
+        ],
+        [
+          "tone-only",
+          {
+            "Strength": 0,
+            "skinBrightening": 50,
+            "skinRosiness": 30
+          }
+        ]
+      ],
+      "order": "alternating AB/BA per round; installation excluded",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "test-output/adoption-1.1.1/before.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        },
+        {
+          "build": "candidate",
+          "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+          "sha256": "1d6d73c49ff9d5a8becfd313da8c4779d4e0a8714d0a1a72562cd307d18af5a5"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 6000,
+          "height": 4000,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            7317.299167,
+            7226.458875,
+            7320.960708000002
+          ],
+          "rounds": [
+            0,
+            1,
+            2
+          ],
+          "medianMs": 7317.299167
+        },
+        {
+          "build": "candidate",
+          "width": 6000,
+          "height": 4000,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            7111.872375,
+            7169.183958000001,
+            7708.034292000004
+          ],
+          "rounds": [
+            0,
+            1,
+            2
+          ],
+          "medianMs": 7169.183958000001
+        }
+      ]
+    },
+    "ring": {
+      "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 5,
+      "fixture": "ring",
+      "cases": [
+        [
+          "mask",
+          {
+            "Show_Mask": true
+          }
+        ],
+        [
+          "effect-default",
+          {}
+        ],
+        [
+          "effect-radius20",
+          {
+            "Radius": 20,
+            "Skin_Only": false
+          }
+        ],
+        [
+          "effect-radius20-skin",
+          {
+            "Radius": 20
+          }
+        ],
+        [
+          "effect-texture0",
+          {
+            "Texture": 0
+          }
+        ],
+        [
+          "tone-only",
+          {
+            "Strength": 0,
+            "skinBrightening": 50,
+            "skinRosiness": 30
+          }
+        ]
+      ],
+      "order": "alternating AB/BA per round; installation excluded",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "test-output/adoption-1.1.1/before.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        },
+        {
+          "build": "candidate",
+          "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+          "sha256": "1d6d73c49ff9d5a8becfd313da8c4779d4e0a8714d0a1a72562cd307d18af5a5"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            724.846666,
+            722.0602499999998,
+            701.1413749999997,
+            705.2825409999996,
+            704.3784169999999
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 705.2825409999996
+        },
+        {
+          "build": "candidate",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            509.05716599999994,
+            512.558417,
+            490.58841699999994,
+            488.7613750000005,
+            491.1596669999999
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 491.1596669999999
+        }
+      ]
+    },
+    "sparse": {
+      "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+      "runtime": "PhotoCraft CLI / wasmi",
+      "runs": 5,
+      "fixture": "sparse",
+      "cases": [
+        [
+          "mask",
+          {
+            "Show_Mask": true
+          }
+        ],
+        [
+          "effect-default",
+          {}
+        ],
+        [
+          "effect-radius20",
+          {
+            "Radius": 20,
+            "Skin_Only": false
+          }
+        ],
+        [
+          "effect-radius20-skin",
+          {
+            "Radius": 20
+          }
+        ],
+        [
+          "effect-texture0",
+          {
+            "Texture": 0
+          }
+        ],
+        [
+          "tone-only",
+          {
+            "Strength": 0,
+            "skinBrightening": 50,
+            "skinRosiness": 30
+          }
+        ]
+      ],
+      "order": "alternating AB/BA per round; installation excluded",
+      "host": "photocraft-cli 0.21.0 (efb7ebd0c, 2026-11-06)",
+      "platform": "darwin",
+      "arch": "arm64",
+      "timing": "plugin.run only; excludes image open, plugin install, Undo and export",
+      "builds": [
+        {
+          "build": "reference",
+          "wasm": "test-output/adoption-1.1.1/before.wasm",
+          "sha256": "faa2c5519f43e0297458265de72aec65c04ca8c19bb2dce91a0c8bc242619373"
+        },
+        {
+          "build": "candidate",
+          "wasm": "target/wasm32-unknown-unknown/release/photocraft_natural_skin.wasm",
+          "sha256": "1d6d73c49ff9d5a8becfd313da8c4779d4e0a8714d0a1a72562cd307d18af5a5"
+        }
+      ],
+      "results": [
+        {
+          "build": "reference",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            303.143042,
+            301.3796249999999,
+            302.43166700000006,
+            301.3476249999999,
+            303.6804579999998
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 302.43166700000006
+        },
+        {
+          "build": "candidate",
+          "width": 1024,
+          "height": 768,
+          "mode": "effect-default",
+          "params": {},
+          "milliseconds": [
+            300.52554200000003,
+            300.854416,
+            313.991542,
+            300.8960000000002,
+            321.24945800000023
+          ],
+          "rounds": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "medianMs": 300.8960000000002
+        }
+      ]
+    }
+  },
+  "limits": [
+    "Synthetic fixtures on macOS arm64 / unchanged PhotoCraft CLI 0.21.0 (efb7ebd0c).",
+    "Alternating AB/BA; 5 samples per build, 3 for the 24 MP fixture.",
+    "plugin.run processing times, not GUI latency; absolute times depend on system load.",
+    "No broad real-portrait or cross-platform GUI acceptance.",
+    "Discarded recursive/local-adaptive implementations and experiment builders were removed; measurements do not combine their algorithms."
+  ]
+}

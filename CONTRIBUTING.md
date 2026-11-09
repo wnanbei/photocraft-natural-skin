@@ -1,21 +1,20 @@
 # Contributing
 
-Bug reports, reproducible image-processing issues, documentation fixes, and small focused pull requests are welcome. English and Chinese reports are both fine.
+The target is a native Natural Skin companion. Do not modify PhotoCraft or reintroduce a second WASM product. `src/` contains the native retouching core and preview cache; `native/` contains TIFF/pcraft exchange, the worker, desktop GUI, loopback client and CLI.
 
-## Local development
+```sh
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --features gui --locked --offline -- -D warnings
+cargo test --workspace --features gui --locked --offline
+cargo build --release --features gui --locked --offline --package natural-skin-companion
+```
 
-Use stable Rust with `wasm32-unknown-unknown`, rustfmt, and Clippy, plus Node.js 24 or newer. There are no Cargo or npm dependencies to install beyond the Rust standard library target. The full check sequence is in [README.md](README.md#verify).
+Run `cargo fetch --locked` first on a clean machine. Tests use synthetic fixtures. Local desktop integration must use a separate PhotoCraft configuration and document set; never attach a test to the user's ordinary editor instance. See `docs/testing.md`.
 
-`src/lib.rs` contains the allocation-free filtering kernel and the WASM ABI wrapper. `manifest.json` is embedded at compile time and declares plugin identity, controls, and required overlap. `tests/verify.mjs` runs the compiled module directly and optionally drives PhotoCraft's actual CLI. `scripts/package.mjs` validates identity and versions before preparing distributable files. `scripts/version.mjs` synchronizes release metadata; `tests/version.test.mjs` exercises version bumps, changelog preparation, drift rejection, and prerelease precedence.
+Keep input immutable across preview requests and publish only completed current results. Invalidate the cache on source/geometry/scale changes and its filter parameters. Test changed skin ranges outside a prior mask. Preserve alpha/HDR/invalid samples and independent-region context. Cancellation may discard a working buffer; it must not publish it.
 
-When changing filter behaviour, add regression checks that demonstrate the user-visible failure and exercise the real compiled WASM. Preserve alpha, selections, zero-strength identity, transparent/HDR handling, and independence between host bands. The guided filter's influence extends to twice the radius; if the maximum radius changes, update the manifest overlap and seam tests together.
+Control connections stay on loopback, authenticate with an explicit private token file and use dedicated read/write roots. Never log tokens or retry a timed-out mutation automatically. A source preflight is not atomic compare-and-apply; document the remaining race instead of claiming it is solved.
 
-Never replace an unsupported colour mode with an unchecked RGB interpretation. Keep the WASM import-free and avoid SIMD or WASI features unsupported by PhotoCraft ABI v1. Check user-facing controls, errors, and mask-preview behaviour against both READMEs.
+ICC metadata preservation is not display colour management. Report exact versions and what actually ran; distinguish kernel timing, file exchange, desktop integration and visible GUI behavior. No source photographs or compiled binaries in commits. Generated results belong under ignored `test-output/`, `target/` or `dist/`.
 
-## Pull requests
-
-Explain what changes, why it matters, and which checks you ran. Include PhotoCraft version and OS for integration claims. Distinguish engine/CLI validation from real GUI checks. Use only images you may share, and avoid including personal portraits in a public bug report; a synthetic reproduction is preferable.
-
-Update the current draft changelog for user-visible changes. Follow [the version policy](docs/versioning.md); use the version script rather than editing independent version copies, and never move published tags. Build outputs and generated fixture files belong in `dist/`, `target/`, or `test-output/`, which are ignored. Do not commit the `.wasm` binary to source control; releases and CI artifacts distribute it.
-
-Contributions are provided under the repository's [MIT license](LICENSE).
+[MIT](LICENSE)

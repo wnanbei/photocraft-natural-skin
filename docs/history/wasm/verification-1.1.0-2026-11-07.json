@@ -1,0 +1,47 @@
+{
+  "abi": 1,
+  "wasmBytes": 38037,
+  "imports": 0,
+  "syntheticNoiseVarianceRatio": 0.5271791796369818,
+  "bluePixelsMaxChange": 0,
+  "previousReleaseMaxDifference": 0,
+  "checks": [
+    "native kernel tests separately",
+    "ABI and manifest",
+    "skin smoothing and blue protection",
+    "edge retention",
+    "texture control",
+    "texture protection invariant under uniform alpha scaling",
+    "neutral settings identity",
+    "skin brightening and positive/negative rosiness",
+    "tone-only mode allocates no scratch memory",
+    "original skin gate reused after smoothing",
+    "tone preserves alpha and mask preview",
+    "mask previews allocate no scratch memory",
+    "alpha / transparent / HDR / NaN preservation",
+    "seam-free independent strips at radii 1, 6 and 20",
+    "invalid ABI inputs rejected",
+    "PhotoCraft selection isolates changes",
+    "PhotoCraft Undo restores original",
+    "PhotoCraft RGB 16-bit and 32-bit processing/save"
+  ],
+  "host": {
+    "version": "photocraft-cli 0.20.2 (7c12f6471, 2026-11-05)",
+    "width": 1536,
+    "height": 1024,
+    "radius": 20,
+    "seconds": 3.1147142079999997,
+    "max8bitDifferenceFromUnsplitWasm": 1
+  },
+  "date": "2026-11-07",
+  "pluginVersion": "1.1.0",
+  "nativeKernelTestsPassed": 12,
+  "versionToolTestsPassed": 12,
+  "sha256": "fd3c76415111c80908b45a3256de5162353944aa80111e85b1ccf46fe0fff97b",
+  "validation": {
+    "format": "passed",
+    "nativeClippy": "passed",
+    "wasmClippy": "passed",
+    "integration": "PhotoCraft CLI; synthetic fixtures; GUI controls not exercised"
+  }
+}

@@ -1,26 +1,43 @@
-# Testing and compatibility
+# Native backend testing
 
-## What is verified
+Fetch dependencies once with `cargo fetch --locked`, then:
 
-`node --test tests/version.test.mjs` checks semantic version precedence, synchronized metadata, draft/history handling, invalid-date and placeholder rejection, and no mutation on rejected operations. Fixtures live in temporary directories; they do not bump or date the working repository.
+```sh
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --features gui --locked --offline -- -D warnings
+cargo test --workspace --features gui --locked --offline
+cargo build --release --features gui --locked --offline --package natural-skin-companion
+```
 
-The native Rust tests compare sliding-window statistics to a naive reference and cover tiny images, transparent samples, colour gating, parameter decoding, and zero-strength preservation. The compiled WASM tests exercise the actual exports and manifest rather than a reimplementation.
+The native tests cover the existing guided filter, disjoint-region context, alpha/HDR/NaN, skin gates and tone controls, cache invalidation/reuse, expanded skin ranges, source immutability, cancellation, TIFF precision/profile/resolution, loopback-only transport and stale source guards.
 
-Texture protection is checked for invariance under uniform alpha scaling, using both uniform opacity and varying opacity with transparent holes. The regression compares RGB at alpha scales 0.1 and 0.5, radii 1/6/20, and Texture 60/100, while checking that alpha itself is preserved.
+The desktop probe launches and closes its own PhotoCraft instance using an isolated config, fresh token and exchange directory. It does not discover or connect to another running editor. It requires a graphical desktop; tests only use synthetic images.
 
-WASM regression checks compare padded whole-image results with independently processed strips at radii 1, 6, and 20. Both use the host's replicated-edge halo convention. The default maximum radius is 20 and required overlap is 40. This specifically catches seams caused by insufficient neighbourhood context.
+```sh
+# Set PHOTOCRAFT_APP for an executable outside the default macOS bundle.
+python3 native/tests/probe_control.py
+# Raw multi-tile desktop exchange (separate latest-pcraft-run.json):
+NATURAL_SKIN_EXCHANGE=pcraft python3 native/tests/probe_control.py
+# Optional, uses the zstd CLI to inspect one known 64x48 RGBA32 fixture.
+python3 native/tests/probe_raw_snapshot.py
+```
 
-`tests/verify.mjs` uses only Node.js core APIs, generates deterministic synthetic PNGs, and writes reports under `test-output/`. Set `NATURAL_SKIN_TEST_DIR` to override that destination. Passing a PhotoCraft CLI enables installation/execution, selected-region isolation, Undo, RGB16/32 saves, and a larger image comparison. Its reported performance includes CLI process launch, installation, image processing, and export.
+The probe tests actual desktop methods, rejected alternatives, native Rust authentication, capture/source preservation, 8/16/32-bit identity and retouch round trips, ICC/resolution/alpha, two-step Undo and rejecting a changed source. The optional `probe_raw_snapshot.py` is the original read-only research probe. The pcraft mode of `probe_control.py` exercises the implemented Rust reader/writer. Neither test proves an arbitrary concurrent user workflow safe.
 
-## Initial local environment
+```sh
+./target/release/natural-skin-companion bench-preview 512 384
+./target/release/natural-skin-companion bench-preview 1024 768
+./target/release/natural-skin-companion bench 6000 4000
+```
 
-- macOS on Apple Silicon; Rust 1.98.1.
-- PhotoCraft CLI 0.20.2, commit `7c12f6471`, from the installed desktop application.
-- Native kernel tests, the compiled WASM checks, and the PhotoCraft CLI integration suite passed.
-- A NASA public-domain astronaut photograph supplied by [scikit-image v0.24.0](https://github.com/scikit-image/scikit-image/blob/v0.24.0/skimage/data/astronaut.png) was processed using the original SoftSkin build and visually inspected. The photograph is not included in this repository. The renamed build is checked separately with synthetic fixtures.
+Benchmark source construction is excluded. Preview results include source copying and cached mixing; full-kernel results include scratch allocation. Both exclude editor capture/return, TIFF I/O and display upload. Do not compare them as end-to-end speedup factors against historical WASM host timings. Keep the raw samples, build hash and machine/version details, and run without simultaneous builds or integration tests.
 
-The renamed plugin's machine-readable local verification record is [verification-2026-11-06.json](verification-2026-11-06.json). Performance and visual quality depend on image size, parameters, lighting, and hardware.
+See the [feasibility report](native-feasibility-2026-11-08.zh-CN.md) for current findings. Prior WASM measurements are [historical](history/wasm/testing.md).
 
-## Limits of the evidence
+The GUI uses the same tested worker and native adapters. Run `cargo run --release --features gui --package natural-skin-companion --bin natural-skin` for visual/interaction acceptance. Check Open, drag/drop, Original/Retouched, all sliders, Show Mask, Reset, cancellation, Export, and failure states. Cross-target Windows compilation is `cargo check --workspace --all-targets --features gui --target x86_64-pc-windows-gnu --locked --offline`; it does not link an executable or run Windows UI. See the [development report](native-development-2026-11-08.zh-CN.md).
 
-CI uses a single Ubuntu job to build, test, and package the cross-platform WebAssembly module. It does not install PhotoCraft or establish GUI integration on any platform. Local CLI validation does not establish native menu layout, live-preview performance, smart-object round trips, or browser compatibility. Unsupported colour modes are rejected. Skin masking is a colour heuristic and must not be described as face recognition.
+Action-button handoff is a separate, no-control-port experiment. `python3 native/tests/probe_handoff.py` prepares an isolated macOS copy/config and keeps the owned test processes alive for actual UI interaction. See [handoff validation](handoff-route-2026-11-09.zh-CN.md); setup alone is not an end-to-end pass.
+
+Desktop 0.2 setup is exercised with `python3 native/tests/probe_handoff.py --desktop`. It starts the GUI with only an isolated `--data-dir`, without `--watch` or `--return-to`. Select the test PhotoCraft bundle in Connection, Enable connection, import the GUI-generated installer, and run Natural Skin Send. Confirm minimize/reentry, mask-safe Apply, a new host document, remembered settings and last-result recovery. `--reuse RUN --desktop` reuses the same isolated state. The helper holds processes; UI actions and pixel comparisons are still required. Never enable the real account's login startup during this probe; the LaunchAgent test uses its own temporary directory.
+
+Settings/activation tests cover invalid-state preservation, single-instance lock recovery, queued opens during export, connection persistence and invalid-target rollback. Windows cross-target checks do not exercise its Run-key registration; real Windows startup and host launch remain acceptance items.
