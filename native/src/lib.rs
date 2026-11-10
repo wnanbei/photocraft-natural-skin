@@ -5,6 +5,7 @@ pub mod control;
 pub mod desktop;
 pub mod exchange;
 pub mod handoff;
+pub mod i18n;
 pub mod pcraft;
 pub mod processing;
 pub mod quality;

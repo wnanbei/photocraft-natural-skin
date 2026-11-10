@@ -4,6 +4,16 @@
 
 不修改 PhotoCraft，通过现有动作导出所选像素图层，使用独立的 Natural Skin 窗口预览，再将完整处理结果打开为 PhotoCraft 新文档。首版共用 Rust + egui 的 Windows/macOS 代码；两个平台分别编译。
 
+外观与中英文切换的实现和验证见 [本轮报告](interface-localization-2026-11-10.zh-CN.md)。
+
+## 界面语言与外观
+
+窗口顶部的「语言」可选择简体中文或 English，所有工作区标签、参数、提示、连接说明、进度及完成消息即时切换；已有消息也会更新。选择独立保存在 Natural Skin 的 `settings.json`，不修改 PhotoCraft。首次按系统语言选择；旧设置缺少新字段时仍可读取。文件名、图层名及 Natural Skin Send 动作名称保持原样。
+
+「外观」提供 PhotoCraft 深色、灰色、浅色和跟随系统。面板、字段、蓝色选中态、紧凑字体及参数分组参考 PhotoCraft Pro 系列。选择即时生效并记忆，连接页与处理过程中也可切换。损坏的配置不会因切换语言而被覆盖；保存失败时会显示提示，当前选择仅在本次运行生效。
+
+应用提供的 macOS 菜单随语言切换；系统提供的文件选择器按钮及 Services 内容由系统语言决定。第三方/OS 未知错误显示当前语言的恢复提示，原始诊断保留在折叠的「技术详情」内。
+
 ## 第一次连接
 
 1. 打开 Natural Skin，进入 **Connection**。选择 `PhotoCraft.app`（macOS）或 `PhotoCraft.exe`（Windows），点击 **Enable connection**。

@@ -2,7 +2,7 @@
 
 面向 PhotoCraft 的原生磨皮伴随程序。**首版按 Windows/macOS 共用的 Rust + egui 界面开发**，不修改 PhotoCraft，也不再维护 WASM 版本。
 
-当前桌面开发版 **0.2.0** 支持连接设置、单实例唤回、可选登录启动和结果找回；普通启动无需命令行参数。它还提供：打开单层 `.pcraft` 或 RGB TIFF、后台预览、原图/结果切换、皮肤蒙版、参数调节、取消、阶段及耗时显示、全分辨率导出新 `.pcraft`。预览基础缓存在进程内复用，连续拖动参数时丢弃过期结果。
+当前桌面开发版 **0.3.0** 新增 PhotoCraft 风格外观、独立中英文界面、1:1 细节预览、SDR ICC 转换和分块导出。支持连接设置、单实例唤回、可选登录启动和结果找回；普通启动无需命令行参数。它还提供：打开单层 `.pcraft` 或 RGB TIFF、后台预览、原图/结果切换、皮肤蒙版、参数调节、取消、阶段及耗时显示、全分辨率导出新 `.pcraft`。预览基础缓存在进程内复用，连续拖动参数时丢弃过期结果。
 
 [English](README.md) · [本轮开发与验证](docs/native-development-2026-11-08.zh-CN.md) · [最初可行性研究](docs/native-feasibility-2026-11-08.zh-CN.md) · [开发顺序](docs/native-roadmap.zh-CN.md)
 
@@ -21,12 +21,14 @@ macOS 打开 `dist/Natural Skin.app`；Windows 在本机运行 `build.ps1`，打
 cargo run --release --features gui --locked --offline --package natural-skin-companion --bin natural-skin
 ```
 
-第一次打开后进入 **Connection**：
+窗口顶部可在 **语言** 中选择 **简体中文 / English**，即时切换并独立保存，重启后保留，不改变 PhotoCraft 设置。首次语言按系统选择中文或英文；旧版连接配置自动兼容。**外观** 提供 PhotoCraft 风格的深色、灰色、浅色及跟随系统选项。
 
-1. 选择 PhotoCraft 应用，点击 **Enable connection**。程序会保存设置并生成动作安装脚本。
+第一次打开后进入 **连接设置（Connection）**：
+
+1. 选择 PhotoCraft 应用，点击 **启用连接（Enable connection）**。程序会保存设置并生成动作安装脚本。
 2. 在 PhotoCraft 中通过 **File → Scripts → Browse** 导入页面所示的 `Install Natural Skin.json`，只需一次。在动作面板中找到 **Natural Skin Send**。
 3. 在 PhotoCraft 中选择普通像素图层，运行该动作。Natural Skin 会接收图层快照并打开预览。
-4. 调参后点击 **Apply to PhotoCraft**，全分辨率处理完成后在 PhotoCraft 打开一个新文档。需要另存时使用 **Export Result**。
+4. 调参后点击 **应用到 PhotoCraft（Apply to PhotoCraft）**，全分辨率处理完成后在 PhotoCraft 打开一个新文档。需要另存时使用 **导出结果（Export Result）**。
 
 关闭窗口会最小化并继续接收；**Quit** 完全退出。也可自行勾选 **Start at login**，默认关闭。重开程序会恢复连接，重复启动会唤回已有实例。回传结果保留在程序数据目录；**Connection → Open last result / Show saved files** 可找回。没有自动清理结果，请保存需要的文档后自行管理磁盘空间。
 

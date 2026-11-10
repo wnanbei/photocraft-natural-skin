@@ -33,7 +33,7 @@ PhotoCraft must remain unchanged. No second WASM product. The actual desktop .pc
 
 ## Open Decisions
 
-Windows runtime validation, distribution signing and broad colour-space support remain to be developed. English control labels continue the existing Natural Skin convention; no custom visual brand or user photos were supplied.
+Windows runtime validation, distribution signing and broad colour-space support remain to be developed. The independent interface supports Simplified Chinese and English with immediate, persistent selection; first launch uses the system locale. PhotoCraft-style Dark, Gray and Light themes plus system appearance use the existing Pro workbench vocabulary. No user photos were supplied.
 
 ## Action handoff
 

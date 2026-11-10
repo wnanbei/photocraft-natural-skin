@@ -1,6 +1,6 @@
 //! Per-user desktop state and file-based single-instance activation.
 //! No TCP listener and no editor preferences are involved.
-use crate::{Result, handoff::install_action_script, invalid};
+use crate::{Result, handoff::install_action_script, i18n::Language, invalid};
 use serde_json::{Value, json};
 use std::{
     fs::{self, File, OpenOptions},
@@ -78,6 +78,14 @@ impl Paths {
                 .as_bool()
                 .ok_or("Invalid listening setting")?,
             last_result: optional_path(&value, "lastResult")?,
+            language: value["language"]
+                .as_str()
+                .and_then(Language::from_code)
+                .unwrap_or_default(),
+            appearance: value["appearance"]
+                .as_str()
+                .and_then(Appearance::from_code)
+                .unwrap_or_default(),
         })
     }
     pub fn save(&self, prefs: &Preferences) -> Result<()> {
@@ -86,6 +94,7 @@ impl Paths {
             &json!({
                 "version":1,"host":prefs.host,"listening":prefs.listening,
                 "lastResult":prefs.last_result,
+                "language":prefs.language.code(),"appearance":prefs.appearance.code(),
             }),
         )
     }
@@ -102,6 +111,45 @@ pub struct Preferences {
     pub host: Option<PathBuf>,
     pub listening: bool,
     pub last_result: Option<PathBuf>,
+    pub language: Language,
+    pub appearance: Appearance,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Appearance {
+    #[default]
+    Dark,
+    Gray,
+    Light,
+    System,
+}
+impl Appearance {
+    pub const ALL: [Self; 4] = [Self::Dark, Self::Gray, Self::Light, Self::System];
+    pub fn code(self) -> &'static str {
+        match self {
+            Self::Dark => "dark",
+            Self::Gray => "gray",
+            Self::Light => "light",
+            Self::System => "system",
+        }
+    }
+    pub fn from_code(code: &str) -> Option<Self> {
+        match code {
+            "dark" => Some(Self::Dark),
+            "gray" => Some(Self::Gray),
+            "light" => Some(Self::Light),
+            "system" => Some(Self::System),
+            _ => None,
+        }
+    }
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Dark => "PhotoCraft Dark",
+            Self::Gray => "PhotoCraft Gray",
+            Self::Light => "PhotoCraft Light",
+            Self::System => "Follow system",
+        }
+    }
 }
 fn read_json(path: &Path) -> Result<Value> {
     if !fs::symlink_metadata(path)?.file_type().is_file() {
@@ -262,6 +310,7 @@ mod tests {
             host: Some(p.root.join("PhotoCraft.app")),
             listening: true,
             last_result: Some(p.root.join("result.pcraft")),
+            ..Preferences::default()
         };
         p.save(&prefs).unwrap();
         p.save(&prefs).unwrap();
@@ -275,6 +324,40 @@ mod tests {
         fs::write(p.root.join("settings.json"), b"{broken").unwrap();
         assert!(p.load().is_err());
         assert_eq!(fs::read(p.root.join("settings.json")).unwrap(), b"{broken");
+        fs::remove_dir_all(p.root).unwrap();
+    }
+    #[test]
+    fn old_settings_migrate_and_interface_choices_preserve_connection_and_recovery() {
+        let p = paths();
+        let host = p.root.join("PhotoCraft.app");
+        let last_result = p.root.join("结果.pcraft");
+        atomic_json(
+            &p.root.join("settings.json"),
+            &json!({
+                "version": 1, "host": host, "listening": true, "lastResult": last_result
+            }),
+        )
+        .unwrap();
+        let mut prefs = p.load().unwrap();
+        assert_eq!(prefs.appearance, Appearance::Dark);
+        for language in Language::ALL {
+            for appearance in Appearance::ALL {
+                prefs.language = language;
+                prefs.appearance = appearance;
+                p.save(&prefs).unwrap();
+                let restored = p.load().unwrap();
+                assert_eq!(restored.language, language);
+                assert_eq!(restored.appearance, appearance);
+                assert_eq!(restored.host, Some(host.clone()));
+                assert_eq!(restored.last_result, Some(last_result.clone()));
+                assert!(restored.listening);
+            }
+        }
+        let mut value = read_json(&p.root.join("settings.json")).unwrap();
+        value["language"] = json!("future-language");
+        value["appearance"] = json!("future-theme");
+        atomic_json(&p.root.join("settings.json"), &value).unwrap();
+        assert_eq!(p.load().unwrap().appearance, Appearance::Dark);
         fs::remove_dir_all(p.root).unwrap();
     }
     #[test]

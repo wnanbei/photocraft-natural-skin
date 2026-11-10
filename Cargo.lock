@@ -1671,16 +1671,20 @@ dependencies = [
 
 [[package]]
 name = "natural-skin-companion"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "blake3",
  "eframe",
  "fmv-macos-events",
  "moxcms",
  "natural-skin-core",
+ "objc2 0.6.5",
+ "objc2-app-kit 0.3.2",
+ "objc2-foundation 0.3.2",
  "rfd",
  "ruzstd",
  "serde_json",
+ "sys-locale",
  "tiff",
  "zip",
 ]

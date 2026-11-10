@@ -1,7 +1,9 @@
 # Changelog
 
-## Native — Unreleased
+## Native 0.3.0 — 2026-11-11
 
+- Align the workbench with PhotoCraft Pro: Dark/Gray/Light palettes, system appearance, Inter typography, flat section strips and compact adjustment rows.
+- Add independent, instant and persistent Simplified Chinese/English selection, including existing task messages, setup, known errors and application-owned macOS menus. Preserve legacy connection/recovery settings and user filenames.
 - Add physical-pixel 1:1 crop inspection with full filter context, mouse/keyboard panning and source/result/mask comparison.
 - Convert bounded SDR RGB matrix/TRC ICC input through sRGB working space and back to source encoding; preserve unchanged and protected samples; reject unsupported profiles. Add explicit canvas display-ICC output selection.
 - Share immutable-source 256-pixel tile processing between GUI and CLI exports, add filter/cache/tone cancellation checkpoints and throttle background progress.

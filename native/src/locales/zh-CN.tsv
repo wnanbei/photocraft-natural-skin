@@ -1,0 +1,242 @@
+# English source key<TAB>original Simplified Chinese translation. Named values are immutable data.
+Open Image…	打开图像…
+Export Result…	导出结果…
+Apply to PhotoCraft	应用到 PhotoCraft
+Connection…	连接设置…
+Quit	退出
+Language	语言
+Appearance	外观
+PhotoCraft Dark	PhotoCraft 深色
+PhotoCraft Gray	PhotoCraft 灰色
+PhotoCraft Light	PhotoCraft 浅色
+Follow system	跟随系统
+Language applies immediately and is saved independently of PhotoCraft.	语言切换即时生效，独立于 PhotoCraft 保存。
+Appearance applies immediately and is saved for the next launch.	外观切换即时生效，重启后保留。
+Could not save interface settings: {error}. Your selection is active for this session; try again after checking the settings folder.	无法保存界面设置：{error}。当前选择在本次运行中生效；请检查设置文件夹后重试。
+Settings file needs repair before preferences can be saved. Your selection is active for this session.	设置文件需要修复后才能保存偏好。当前选择在本次运行中生效。
+Ready	就绪
+Open an image to begin	打开图像以开始处理
+Waiting for PhotoCraft	等待 PhotoCraft
+Click the Natural Skin Send action in PhotoCraft	在 PhotoCraft 中运行 Natural Skin Send 动作
+Reading image	正在读取图像
+Updating preview	正在更新预览
+Preparing preview	正在准备预览
+Preparing preview…	正在准备预览…
+Analyzing skin	正在分析肤色
+Preparing filter	正在准备滤镜
+Smoothing skin	正在平滑皮肤
+Adjusting skin tone	正在调整肤色
+Showing skin mask	正在生成皮肤蒙版
+Mixing preview	正在混合预览
+Preparing result	正在准备结果
+Writing result	正在写入结果
+Preview complete	预览已更新
+Export complete	导出完成
+Opening result in PhotoCraft	正在 PhotoCraft 中打开结果
+Operation failed	操作失败
+Processing full image	正在处理完整图像
+Sent to PhotoCraft	已发送到 PhotoCraft
+Result opens as a new document	结果将作为新文档打开
+Result saved; could not open PhotoCraft	结果已保存，但无法打开 PhotoCraft
+Receiving layer from PhotoCraft	正在接收 PhotoCraft 图层
+Capture rejected	无法接收图层
+Finishing file write before quitting	文件写入完成后退出
+Connection stopped	连接已停止
+Run Natural Skin Send in PhotoCraft	在 PhotoCraft 中运行 Natural Skin Send 动作
+Open a file manually or enable the connection again	手动打开文件，或重新启用连接
+Cancelled	已取消
+The source is unchanged	源图像未更改
+Finishing file write	正在完成文件写入
+Listener stopped	已停止接收
+Cancel	取消
+Stop Listening	停止接收
+Copy saved path	复制保存路径
+An image will open after the current export completes.	当前导出完成后将打开待处理图像。
+Wait for layer capture or the PhotoCraft open request to finish	请等待图层接收或 PhotoCraft 打开请求完成
+Connect to PhotoCraft	连接 PhotoCraft
+Send a selected pixel layer, adjust its skin, then open the result as a new PhotoCraft document.	发送选中的像素图层，调整皮肤效果，然后在 PhotoCraft 中以新文档打开结果。
+PhotoCraft application	PhotoCraft 应用程序
+Choose PhotoCraft.app on macOS or PhotoCraft.exe on Windows.	在 macOS 上选择 PhotoCraft.app，在 Windows 上选择 PhotoCraft.exe。
+Choose…	选择…
+Save connection	保存连接
+Enable connection	启用连接
+Stop connection	停止连接
+Listening	正在接收
+Stopped	已停止
+Install the Send action once	首次使用时安装发送动作
+In PhotoCraft, choose File → Scripts → Browse and select this installer. Then find Natural Skin Send in the Actions panel.	在 PhotoCraft 中选择「文件 → 脚本 → 浏览」，选择下方的安装脚本。然后在「动作」面板中找到 Natural Skin Send。
+Show installer folder	显示安装脚本文件夹
+Copy installer path	复制安装脚本路径
+If the action is already present, use it directly. To reinstall, delete only Natural Skin Send from PhotoCraft first.	如果已有此动作，可直接使用。如需重新安装，请先在 PhotoCraft 中仅删除 Natural Skin Send 动作。
+Keep Natural Skin available	保持 Natural Skin 可用
+While connected, closing the window minimizes it and keeps receiving layers. Use Quit to stop the app.	连接期间，关闭窗口会将其最小化并继续接收图层。选择「退出」可结束应用。
+Start at login	登录时启动
+Saved results	已保存的结果
+Completed results are kept until you remove them. Save the returned document in PhotoCraft to a location of your choice.	已完成的结果会保留，直到你手动删除。请在 PhotoCraft 中将返回的文档另存到所需位置。
+Open last result	打开上次的结果
+Show saved files	显示已保存的文件
+Back to image	返回图像
+Skin retouching	皮肤修饰
+Skin only	仅处理皮肤
+Limit changes to the detected skin-colour range	仅调整检测到的肤色范围
+Strength	强度
+Radius (px)	半径（像素）
+Edge protection	边缘保护
+Texture	纹理保留
+Skin range	肤色范围
+Range	范围
+Show skin mask	显示皮肤蒙版
+Skin colour	肤色调整
+Brightening	提亮
+Rosiness	红润
+Reset adjustments	重置调整
+Fit is approximate. Click the image to inspect 1:1 detail; drag detail to pan. Export uses the full source.	适合窗口的预览为近似效果。点击图像查看 1:1 细节，拖动可平移。导出使用完整源图像。
+Display output: selected ICC profile	显示输出：已选 ICC 色彩配置
+Display output: sRGB	显示输出：sRGB
+Display profile…	显示色彩配置…
+Choose the ICC profile matching your display. Use sRGB output if your OS already converts this window to the display profile.	选择与你的显示器匹配的 ICC 色彩配置。如果系统已为此窗口执行显示色彩转换，请使用 sRGB 输出。
+Use sRGB output	使用 sRGB 输出
+SDR only. Monitor calibration and automatic profile switching are not verified.	仅支持 SDR。尚未验证显示器校准和色彩配置自动切换。
+Original	原图
+Retouched	修饰后
+Skin mask	皮肤蒙版
+Fit	适合窗口
+1:1 detail	1:1 细节
+Drag or use arrow keys to pan	拖动或使用方向键平移
+Click image to inspect detail	点击图像查看细节
+Open an image	打开图像
+Open a single-layer .pcraft document or an RGB TIFF.	打开单图层 .pcraft 文档或 RGB TIFF 图像。
+Drag a file here, or choose Open Image.	将文件拖到此处，或选择「打开图像」。
+PhotoCraft or RGB TIFF	PhotoCraft 或 RGB TIFF
+PhotoCraft document	PhotoCraft 文档
+ICC display profile	显示器 ICC 色彩配置
+Untagged RGB · assumed sRGB	未标记的 RGB · 按 sRGB 处理
+ICC RGB ↔ sRGB · source profile retained	ICC RGB ↔ sRGB · 保留源色彩配置
+Layer received from PhotoCraft. The connection is working.	已收到 PhotoCraft 图层，连接正常。
+Listening. Import the action below if this is your first connection.	正在接收。如果是首次连接，请导入下方的动作。
+Connection stopped. Enable it here when needed.	连接已停止。需要时可在此重新启用。
+Login startup updated. Keep Natural Skin in its current location, or update this setting after moving it.	已更新登录启动设置。请保持 Natural Skin 的当前位置，移动后需重新设置。
+Technical details	技术详情
+The operation could not be completed. Check the file and access permissions, then try again.	无法完成操作。请检查文件及访问权限，然后重试。
+{width} × {height}  ·  {depth}-bit RGB	{width} × {height}  ·  {depth} 位 RGB
+{milliseconds} ms · cached filter	{milliseconds} 毫秒 · 已复用滤镜缓存
+{milliseconds} ms	{milliseconds} 毫秒
+Saved in {elapsed} s · filter {filter} s · write {write} s · tile buffers ≤ {memory} MiB	保存用时 {elapsed} 秒 · 滤镜 {filter} 秒 · 写入 {write} 秒 · 分块缓冲 ≤ {memory} MiB
+Failed after {elapsed} s	在 {elapsed} 秒后失败
+{elapsed} s elapsed	已用时 {elapsed} 秒
+Saved: {file}	已保存：{file}
+x {x} · y {y} · {width} × {height} px	x {x} · y {y} · {width} × {height} 像素
+Could not read settings: {error}. The existing settings file has been kept.	无法读取设置：{error}。原设置文件已保留。
+PhotoCraft could not be found: {error}. Choose its current location.	找不到 PhotoCraft：{error}。请选择当前应用位置。
+Could not start the connection: {error}. Check the exchange folder, then enable the connection again.	无法启动连接：{error}。请检查交换文件夹，然后重新启用连接。
+Result saved, but its recovery link could not be remembered: {error}	结果已保存，但无法记录恢复路径：{error}
+Could not update the connection: {error}. Choose PhotoCraft again, then save the connection.	无法更新连接：{error}。请重新选择 PhotoCraft，然后保存连接。
+Could not update login startup: {error}	无法更新登录启动设置：{error}
+Display profile was not changed: {error}. Choose a supported SDR RGB matrix/TRC display ICC, or choose Use sRGB output	显示色彩配置未更改：{error}。请选择支持的 SDR RGB 矩阵/TRC 显示器 ICC，或选择「使用 sRGB 输出」。
+Could not receive the open request: {error}	无法接收打开请求：{error}
+Open an image first	请先打开图像
+Choose a PhotoCraft .app bundle	请选择 PhotoCraft 的 .app 应用
+Choose PhotoCraft.exe	请选择 PhotoCraft.exe
+Output already exists	输出文件已存在，请选择新文件名
+No such file or directory (os error 2)	文件或文件夹不存在
+Permission denied (os error 13)	没有访问权限
+Access is denied. (os error 5)	没有访问权限
+The system cannot find the file specified. (os error 2)	系统找不到指定文件
+Unsupported settings version; keep the file and use a compatible Natural Skin version	不支持此设置版本，请保留文件并使用兼容的 Natural Skin 版本
+Invalid listening setting	连接设置无效
+Desktop state must be a regular file	桌面设置必须为普通文件
+Desktop state exceeds 64 KiB	桌面设置文件超过 64 KiB
+Folder no longer exists	文件夹已不存在
+Could not update per-user login startup	无法更新当前用户的登录启动项
+Login startup is supported on macOS and Windows	登录启动仅支持 macOS 和 Windows
+Capture must be a regular pcraft file within 768 MiB	接收的图层必须为不超过 768 MiB 的普通 pcraft 文件
+Another Natural Skin listener already owns this exchange folder	另一个 Natural Skin 实例正在接收此交换文件夹中的图层
+Capture grew beyond its budget	接收的图层文件超出大小限制
+Return only a completed pcraft file	只能返回已完成的 pcraft 文件
+Open request timed out; result is saved, do not retry automatically	打开请求超时；结果已保存，请勿自动重试
+Invalid or unsupported ICC profile: {error}. Convert the image to sRGB in PhotoCraft first.	ICC 色彩配置无效或不受支持：{error}。请先在 PhotoCraft 中将图像转换为 sRGB。
+Only SDR RGB matrix/TRC ICC profiles are supported. Convert to sRGB in PhotoCraft first; HDR/LUT profiles are not assumed to be sRGB.	仅支持 SDR RGB 矩阵/TRC ICC 色彩配置。请先在 PhotoCraft 中转换为 sRGB；HDR/LUT 色彩配置无法按 sRGB 处理。
+ICC conversion produced non-finite RGB	ICC 转换产生了无效的 RGB 数值
+Unsupported display ICC profile	不支持此显示器 ICC 色彩配置
+Display ICC profile must be a regular file up to 4 MiB	显示器 ICC 色彩配置必须为不超过 4 MiB 的普通文件
+Preview region is outside the source image	预览区域超出源图像范围
+Detail preview is limited to 2 MP	细节预览不能超过 200 万像素
+Invalid image layout or 36 MP limit exceeded	图像布局无效或超过 3600 万像素限制
+Image size overflow	图像尺寸超出可处理范围
+Native proof supports images up to 36 MP	目前支持不超过 3600 万像素的图像
+Only straight/unassociated alpha is supported by this proof	目前仅支持非预乘 Alpha
+Unsupported or invalid TIFF resolution metadata	TIFF 分辨率信息无效或不受支持
+Unsupported TIFF sample format (32-bit must be float)	不支持此 TIFF 采样格式（32 位必须为浮点数）
+Unexpected TIFF sample count	TIFF 采样数量异常
+Multipage/pyramid TIFF is outside the native proof scope	目前不支持多页或金字塔 TIFF
+Size overflow	尺寸超出可处理范围
+Invalid frame layout	图像数据布局无效
+Unsupported frame depth	不支持此图像位深
+Truncated pcraft ZIP	pcraft 压缩文件不完整
+Missing pcraft ZIP directory	缺少 pcraft 压缩文件目录
+Unsupported/oversized pcraft ZIP directory	pcraft 压缩文件目录不受支持或过大
+Invalid pcraft hex	pcraft 十六进制数据无效
+pcraft entry exceeds budget or is encrypted	pcraft 条目过大或已加密
+pcraft ZIP size mismatch	pcraft 压缩文件大小不匹配
+pcraft object size/trailing-frame violation	pcraft 对象大小或尾部数据异常
+pcraft decompression budget exceeded	pcraft 解压数据超出限制
+Invalid object path	对象路径无效
+pcraft BLAKE3 mismatch	pcraft BLAKE3 校验失败
+pcraft archive exceeds 768 MiB	pcraft 文件超过 768 MiB
+Duplicate pcraft ZIP names	pcraft 压缩文件中存在重复名称
+Too many pcraft entries	pcraft 条目数量过多
+Duplicate or unsupported pcraft entry	pcraft 条目重复或不受支持
+Missing archive	缺少压缩文件
+pcraft tile length mismatch	pcraft 分块长度不匹配
+Missing pcraft ICC blob	缺少 pcraft ICC 色彩配置数据
+Unsupported pcraft format version (only 1 is supported)	不支持此 pcraft 格式版本（仅支持版本 1）
+Invalid width	宽度无效
+Invalid height	高度无效
+pcraft canvas limit: 36 MP	pcraft 画布不能超过 3600 万像素
+Missing layers	缺少图层
+Use one RGB pixel layer without a selection, extra channels or timeline	请使用单个 RGB 像素图层，且不含选区、额外通道或时间轴
+Unsupported pcraft layer appearance/content	不支持此 pcraft 图层外观或内容
+Invalid ICC hash	ICC 校验值无效
+Invalid ICC reference	ICC 引用无效
+Unsupported sample type	不支持此采样类型
+pcraft surface/document format mismatch	pcraft 图像与文档格式不匹配
+Missing alpha layout	缺少 Alpha 布局
+Tile grid overflow	分块网格超出范围
+pcraft padded tile grid exceeds budget	pcraft 填充分块网格超出限制
+pcraft default pixel length mismatch	pcraft 默认像素长度不匹配
+Invalid pcraft DPI	pcraft DPI 无效
+Missing surface tiles	缺少图像分块
+Too many pcraft tiles	pcraft 分块数量过多
+Invalid tile x	分块横坐标无效
+Invalid tile y	分块纵坐标无效
+Invalid/duplicate pcraft tile reference	pcraft 分块引用无效或重复
+Unsupported frame resolution	不支持此图像分辨率
+pcraft requires square DPI	pcraft 要求水平与垂直 DPI 相同
+Invalid pcraft depth	pcraft 位深无效
+pcraft frame geometry/layout changed	pcraft 图像尺寸或布局已改变
+ICC exceeds budget	ICC 色彩配置超出大小限制
+Missing tile source	缺少分块源数据
+pcraft tile changed length	pcraft 分块长度已改变
+Output manifest exceeds budget	输出清单超出大小限制
+Output pcraft exceeds archive budget	输出 pcraft 文件超出大小限制
+Invalid {key} path in settings	设置中的 {key} 路径无效
+Missing/invalid pcraft {key}	pcraft 的 {key} 缺失或无效
+Unsupported TIFF layout: {layout}	不支持此 TIFF 布局：{layout}
+PhotoCraft open request failed: {status}	PhotoCraft 打开请求失败：{status}
+About Natural Skin	关于 Natural Skin
+Hide Natural Skin	隐藏 Natural Skin
+Quit Natural Skin	退出 Natural Skin
+Hide Others	隐藏其他应用
+Show All	全部显示
+Quit and Keep Windows	退出并保留窗口
+Services	服务
+Edit	编辑
+Cut	剪切
+Copy	复制
+Paste	粘贴
+Select All	全选
+Layout	图像数据布局无效
+TooLarge	图像超出大小限制
+OutOfMemory	内存不足，请尝试较小的图像
+Kernel	图像处理失败，请重新打开图像后重试
+Drag to adjust, or click the number to type a value. Hold Shift while dragging for finer control.	拖动滑杆调整，或点击数值直接输入。按住 Shift 拖动可精细调整。

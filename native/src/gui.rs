@@ -1,8 +1,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use eframe::egui::{self, Color32, RichText, TextureHandle};
+mod appearance;
+#[cfg(target_os = "macos")]
+mod native_menu;
+
+#[cfg(test)]
+use eframe::egui::Color32;
+use eframe::egui::{self, RichText, TextureHandle};
 use natural_skin_companion::{
-    desktop::{self, Instance, Paths, Preferences, Start},
+    desktop::{self, Appearance, Instance, Paths, Preferences, Start},
     handoff::{HandoffEvent, HostTarget, Watcher, result_path},
+    i18n::Language,
     processing::Crop,
     startup::LoginStartup,
     worker::{Event, Job, PreviewPixels, Worker},
@@ -13,7 +20,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 struct Controls {
     strength: u32,
     radius: u32,
@@ -98,6 +105,9 @@ impl DesktopSession {
 }
 struct App {
     desktop: Option<DesktopSession>,
+    language: Language,
+    appearance: Appearance,
+    interface_error: Option<String>,
     connection_page: bool,
     quitting: bool,
     progress: Option<f32>,
@@ -144,18 +154,20 @@ impl App {
         mut options: LaunchOptions,
     ) -> natural_skin_companion::Result<Self> {
         let ctx = cc.egui_ctx.clone();
-        for theme in [egui::Theme::Dark, egui::Theme::Light] {
-            let mut style = (*ctx.style_of(theme)).clone();
-            style.spacing.item_spacing = egui::vec2(8.0, 8.0);
-            style.spacing.button_padding = egui::vec2(12.0, 7.0);
-            style.spacing.slider_width = 150.0;
-            style.visuals.error_fg_color = if theme == egui::Theme::Dark {
-                Color32::from_rgb(255, 150, 150)
-            } else {
-                Color32::from_rgb(175, 32, 40)
-            };
-            ctx.set_style_of(theme, style);
-        }
+        let language = options
+            .desktop
+            .as_ref()
+            .map(|s| s.prefs.language)
+            .unwrap_or_default();
+        let appearance = options
+            .desktop
+            .as_ref()
+            .map(|s| s.prefs.appearance)
+            .unwrap_or_default();
+        appearance::install_fonts(&ctx);
+        appearance::apply(&ctx, appearance);
+        #[cfg(target_os = "macos")]
+        native_menu::translate(language);
         if let Some(state) = &mut options.desktop {
             if let Some(path) = &state.prefs.host {
                 match HostTarget::new(path) {
@@ -194,6 +206,9 @@ impl App {
         };
         connection_page |= options.desktop.as_ref().is_some_and(|s| s.error.is_some());
         let mut app = Self {
+            language,
+            appearance,
+            interface_error: None,
             desktop: options.desktop,
             connection_page,
             quitting: false,
@@ -278,9 +293,11 @@ impl App {
         self.begin(Job::Load(path), "Reading image");
     }
     fn open(&mut self, frame: &eframe::Frame) {
+        let l = self.language;
         if let Some(path) = rfd::FileDialog::new()
             .set_parent(frame)
-            .add_filter("PhotoCraft or RGB TIFF", &["pcraft", "tif", "tiff"])
+            .set_title(l.text("Open Image…"))
+            .add_filter(l.text("PhotoCraft or RGB TIFF"), &["pcraft", "tif", "tiff"])
             .pick_file()
         {
             self.load(path);
@@ -422,6 +439,7 @@ impl App {
         }
     }
     fn export(&mut self, frame: &eframe::Frame) {
+        let l = self.language;
         self.returning = false;
         let stem = self
             .path
@@ -432,7 +450,8 @@ impl App {
         let file = format!("{stem}-natural-skin.pcraft");
         if let Some(path) = rfd::FileDialog::new()
             .set_parent(frame)
-            .add_filter("PhotoCraft document", &["pcraft"])
+            .set_title(l.text("Export Result…"))
+            .add_filter(l.text("PhotoCraft document"), &["pcraft"])
             .set_file_name(file)
             .save_file()
         {
@@ -621,139 +640,211 @@ impl App {
             Err(e) => state.fail(format!("Could not update the connection: {e}. Choose PhotoCraft again, then save the connection.")),
         }
     }
+    fn save_interface(&mut self, ctx: &egui::Context) {
+        appearance::apply(ctx, self.appearance);
+        #[cfg(target_os = "macos")]
+        native_menu::translate(self.language);
+        self.interface_error = None;
+        if let Some(state) = &mut self.desktop {
+            if !state.prefs_valid {
+                self.interface_error = Some("Settings file needs repair before preferences can be saved. Your selection is active for this session.".into());
+                return;
+            }
+            let mut prefs = state.prefs.clone();
+            prefs.language = self.language;
+            prefs.appearance = self.appearance;
+            match state.paths.save(&prefs) {
+                Ok(()) => {
+                    state.prefs = prefs;
+                }
+                Err(e) => {
+                    self.interface_error = Some(format!(
+                        "Could not save interface settings: {e}. Your selection is active for this session; try again after checking the settings folder."
+                    ))
+                }
+            }
+        }
+        ctx.request_repaint();
+    }
+    fn interface_ui(&mut self, ui: &mut egui::Ui) {
+        let l = self.language;
+        let before = (self.language, self.appearance);
+        ui.horizontal_wrapped(|ui| {
+            let label = ui.label(l.text("Language"));
+            egui::ComboBox::from_id_salt("interface_language")
+                .width(110.0)
+                .selected_text(self.language.name())
+                .show_ui(ui, |ui| {
+                    for language in Language::ALL {
+                        if ui
+                            .selectable_value(&mut self.language, language, language.name())
+                            .clicked()
+                        {
+                            ui.close();
+                        }
+                    }
+                })
+                .response
+                .labelled_by(label.id)
+                .on_hover_text(l.text(
+                    "Language applies immediately and is saved independently of PhotoCraft.",
+                ));
+            ui.add_space(12.0);
+            let label = ui.label(l.text("Appearance"));
+            egui::ComboBox::from_id_salt("interface_appearance")
+                .width(170.0)
+                .selected_text(l.text(self.appearance.label()))
+                .show_ui(ui, |ui| {
+                    for appearance in Appearance::ALL {
+                        if ui
+                            .selectable_value(
+                                &mut self.appearance,
+                                appearance,
+                                l.text(appearance.label()),
+                            )
+                            .clicked()
+                        {
+                            ui.close();
+                        }
+                    }
+                })
+                .response
+                .labelled_by(label.id)
+                .on_hover_text(
+                    l.text("Appearance applies immediately and is saved for the next launch."),
+                );
+        });
+        if before != (self.language, self.appearance) {
+            self.save_interface(ui.ctx());
+        }
+    }
     fn connection_ui(&mut self, ui: &mut egui::Ui, frame: &eframe::Frame) {
-        ui.add_space(20.0);
+        let l = self.language;
+        ui.add_space(appearance::SECTION_GAP);
         ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Wrap);
         egui::ScrollArea::vertical().show(ui, |ui| {
             ui.set_max_width(680.0);
-            ui.heading("Connect to PhotoCraft");
-            ui.label("Send a selected pixel layer, adjust its skin, then open the result as a new PhotoCraft document.");
-            ui.add_space(20.0);
+            ui.heading(l.text("Connect to PhotoCraft"));
+            ui.label(l.text("Send a selected pixel layer, adjust its skin, then open the result as a new PhotoCraft document."));
+            ui.add_space(appearance::SECTION_GAP);
             let Some(state) = &mut self.desktop else { return; };
             let mut enable = None;
-            ui.strong("PhotoCraft application");
-            let label = ui.label("Choose PhotoCraft.app on macOS or PhotoCraft.exe on Windows.");
+            ui.strong(l.text("PhotoCraft application"));
+            let label = ui.label(l.text("Choose PhotoCraft.app on macOS or PhotoCraft.exe on Windows."));
             ui.horizontal(|ui| {
                 ui.add(egui::TextEdit::singleline(&mut state.host_draft).desired_width(460.0)).labelled_by(label.id);
-                if ui.button("Choose…").clicked() {
+                if ui.button(l.text("Choose…")).clicked() {
                     let dialog = rfd::FileDialog::new().set_parent(frame);
                     #[cfg(target_os = "macos")]
-                    let dialog = dialog.add_filter("PhotoCraft application", &["app"]);
+                    let dialog = dialog.add_filter(l.text("PhotoCraft application"), &["app"]);
                     #[cfg(target_os = "windows")]
-                    let dialog = dialog.add_filter("PhotoCraft application", &["exe"]);
+                    let dialog = dialog.add_filter(l.text("PhotoCraft application"), &["exe"]);
                     if let Some(path) = dialog.pick_file() { state.host_draft = path.to_string_lossy().into_owned(); }
                 }
             });
             ui.horizontal(|ui| {
-                if ui.add_enabled(!self.exporting, egui::Button::new(if self.watcher.is_some() { "Save connection" } else { "Enable connection" })).clicked() { enable = Some(true); }
-                if self.watcher.is_some() && ui.add_enabled(!self.exporting,egui::Button::new("Stop connection")).clicked() { enable = Some(false); }
-                ui.label(if self.watcher.is_some() { "Listening" } else { "Stopped" });
+                if ui.add_enabled(!self.exporting, egui::Button::new(l.text(if self.watcher.is_some() { "Save connection" } else { "Enable connection" }))).clicked() { enable = Some(true); }
+                if self.watcher.is_some() && ui.add_enabled(!self.exporting,egui::Button::new(l.text("Stop connection"))).clicked() { enable = Some(false); }
+                ui.label(l.text(if self.watcher.is_some() { "Listening" } else { "Stopped" }));
             });
-            if !state.notice.is_empty() { ui.label(&state.notice); }
-            ui.add_space(20.0);
-            ui.strong("Install the Send action once");
-            ui.label("In PhotoCraft, choose File → Scripts → Browse and select this installer. Then find Natural Skin Send in the Actions panel.");
+            if !state.notice.is_empty() { ui.label(l.text(&state.notice)); }
+            ui.add_space(appearance::SECTION_GAP);
+            ui.strong(l.text("Install the Send action once"));
+            ui.label(l.text("In PhotoCraft, choose File → Scripts → Browse and select this installer. Then find Natural Skin Send in the Actions panel."));
             path_label(ui, &state.paths.installer);
             ui.horizontal(|ui| {
-                if ui.add_enabled(state.paths.installer.exists(),egui::Button::new("Show installer folder")).clicked()
+                if ui.add_enabled(state.paths.installer.exists(),egui::Button::new(l.text("Show installer folder"))).clicked()
                     && let Err(e) = desktop::show_folder(&state.paths.root) { state.fail(e.to_string()); }
-                if ui.button("Copy installer path").clicked() { ui.ctx().copy_text(state.paths.installer.display().to_string()); }
+                if ui.button(l.text("Copy installer path")).clicked() { ui.ctx().copy_text(state.paths.installer.display().to_string()); }
             });
-            ui.label("If the action is already present, use it directly. To reinstall, delete only Natural Skin Send from PhotoCraft first.");
-            ui.add_space(20.0);
-            ui.strong("Keep Natural Skin available");
-            ui.label("While connected, closing the window minimizes it and keeps receiving layers. Use Quit to stop the app.");
+            ui.label(l.text("If the action is already present, use it directly. To reinstall, delete only Natural Skin Send from PhotoCraft first."));
+            ui.add_space(appearance::SECTION_GAP);
+            ui.strong(l.text("Keep Natural Skin available"));
+            ui.label(l.text("While connected, closing the window minimizes it and keeps receiving layers. Use Quit to stop the app."));
             let mut login = state.login_enabled;
-            if ui.add_enabled(state.startup.is_some(),egui::Checkbox::new(&mut login,"Start at login")).changed() {
+            if ui.add_enabled(state.startup.is_some(),egui::Checkbox::new(&mut login, l.text("Start at login"))).changed() {
                 match state.startup.as_ref().unwrap().set_enabled(login) {
                     Ok(()) => { state.login_enabled=login; state.notice="Login startup updated. Keep Natural Skin in its current location, or update this setting after moving it.".into(); state.error=None; }
                     Err(e) => state.fail(format!("Could not update login startup: {e}")),
                 }
             }
-            ui.add_space(20.0);
-            ui.strong("Saved results");
-            ui.label("Completed results are kept until you remove them. Save the returned document in PhotoCraft to a location of your choice.");
+            ui.add_space(appearance::SECTION_GAP);
+            ui.strong(l.text("Saved results"));
+            ui.label(l.text("Completed results are kept until you remove them. Save the returned document in PhotoCraft to a location of your choice."));
             let mut reopen=None;
             if let Some(path) = &state.prefs.last_result {
                 path_label(ui, path);
-                if ui.add_enabled(!self.exporting && path.is_file(),egui::Button::new("Open last result")).clicked() { reopen=Some(path.clone()); }
+                if ui.add_enabled(!self.exporting && path.is_file(),egui::Button::new(l.text("Open last result"))).clicked() { reopen=Some(path.clone()); }
             }
-            if ui.button("Show saved files").clicked()
+            if ui.button(l.text("Show saved files")).clicked()
                 && let Err(e) = desktop::show_folder(&state.paths.root) { state.fail(e.to_string()); }
-            ui.add_space(20.0);
-            if ui.button("Back to image").clicked() { self.connection_page=false; }
+            ui.add_space(appearance::SECTION_GAP);
+            if ui.button(l.text("Back to image")).clicked() { self.connection_page=false; }
             if let Some(enabled)=enable { self.set_connection(enabled,ui.ctx()); }
             if let Some(path)=reopen { self.load(path); }
         });
     }
     fn inspector(&mut self, ui: &mut egui::Ui, frame: &eframe::Frame) {
+        let l = self.language;
         let old = self.controls.clone();
-        ui.heading("Skin retouching");
-        ui.add_space(12.0);
-        ui.checkbox(&mut self.controls.skin, "Skin only")
-            .on_hover_text("Limit changes to the detected skin-colour range");
+        appearance::strip(ui, l.text("Skin retouching"));
+        ui.checkbox(&mut self.controls.skin, l.text("Skin only"))
+            .on_hover_text(l.text("Limit changes to the detected skin-colour range"));
         ui.add_space(8.0);
-        let label = ui.label("Strength");
-        ui.add(egui::Slider::new(&mut self.controls.strength, 0..=100))
-            .labelled_by(label.id);
-        let label = ui.label("Radius (px)");
-        ui.add(egui::Slider::new(&mut self.controls.radius, 1..=20))
-            .labelled_by(label.id);
-        let label = ui.label("Edge protection");
-        ui.add(egui::Slider::new(&mut self.controls.edge, 0..=100))
-            .labelled_by(label.id);
-        let label = ui.label("Texture");
-        ui.add(egui::Slider::new(&mut self.controls.texture, 0..=100))
-            .labelled_by(label.id);
-        ui.add_space(20.0);
-        ui.strong("Skin range");
-        let label = ui.label("Range");
-        ui.add(egui::Slider::new(&mut self.controls.range, 0..=100))
-            .labelled_by(label.id);
-        ui.checkbox(&mut self.controls.mask, "Show skin mask");
-        ui.add_space(20.0);
-        ui.strong("Skin colour");
-        let label = ui.label("Brightening");
-        ui.add(egui::Slider::new(&mut self.controls.bright, 0..=100))
-            .labelled_by(label.id);
-        let label = ui.label("Rosiness");
-        ui.add(egui::Slider::new(&mut self.controls.rose, -100..=100))
-            .labelled_by(label.id);
-        ui.add_space(20.0);
-        if ui.button("Reset adjustments").clicked() {
+        adjustment(ui, l, "Strength", &mut self.controls.strength, 0..=100);
+        adjustment(ui, l, "Radius (px)", &mut self.controls.radius, 1..=20);
+        adjustment(ui, l, "Edge protection", &mut self.controls.edge, 0..=100);
+        adjustment(ui, l, "Texture", &mut self.controls.texture, 0..=100);
+        ui.add_space(appearance::SECTION_GAP);
+        appearance::strip(ui, l.text("Skin range"));
+        adjustment(ui, l, "Range", &mut self.controls.range, 0..=100);
+        ui.checkbox(&mut self.controls.mask, l.text("Show skin mask"));
+        ui.add_space(appearance::SECTION_GAP);
+        appearance::strip(ui, l.text("Skin colour"));
+        adjustment(ui, l, "Brightening", &mut self.controls.bright, 0..=100);
+        adjustment(ui, l, "Rosiness", &mut self.controls.rose, -100..=100);
+        ui.add_space(appearance::SECTION_GAP);
+        if ui.button(l.text("Reset adjustments")).clicked() {
             self.controls = Controls::default();
         }
-        ui.add_space(20.0);
+        ui.add_space(appearance::SECTION_GAP);
         preview_note(
             ui,
+            l,
             "Fit is approximate. Click the image to inspect 1:1 detail; drag detail to pan. Export uses the full source.",
         );
         ui.add_space(8.0);
-        preview_note(ui, &self.colour);
+        preview_note(ui, l, &self.colour);
         preview_note(
             ui,
+            l,
             if self.display_profile.is_some() {
                 "Display output: selected ICC profile"
             } else {
                 "Display output: sRGB"
             },
         );
-        if ui.button("Display profile…").on_hover_text("Choose the ICC profile matching your display. Use sRGB output if your OS already converts this window to the display profile.").clicked()
-            && let Some(path)=rfd::FileDialog::new().set_parent(frame).add_filter("ICC display profile", &["icc","icm"]).pick_file() {
+        if ui.button(l.text("Display profile…")).on_hover_text(l.text("Choose the ICC profile matching your display. Use sRGB output if your OS already converts this window to the display profile.")).clicked()
+            && let Some(path)=rfd::FileDialog::new().set_parent(frame).set_title(l.text("Display profile…")).add_filter(l.text("ICC display profile"), &["icc","icm"]).pick_file() {
             match natural_skin_companion::color::DisplayTransform::from_path(Some(&path)) {
                 Ok(_)=>{self.display_profile=Some(path);self.pending=Some(Instant::now());},
                 Err(e)=>self.error=Some(format!("Display profile was not changed: {e}. Choose a supported SDR RGB matrix/TRC display ICC, or choose Use sRGB output")),
             }
         }
         if let Some(path) = &self.display_profile {
-            preview_note(ui, path.file_name().unwrap_or_default().to_string_lossy());
-            if ui.button("Use sRGB output").clicked() {
+            preview_note(
+                ui,
+                Language::English,
+                path.file_name().unwrap_or_default().to_string_lossy(),
+            );
+            if ui.button(l.text("Use sRGB output")).clicked() {
                 self.display_profile = None;
                 self.pending = Some(Instant::now());
             }
         }
         preview_note(
             ui,
+            l,
             "SDR only. Monitor calibration and automatic profile switching are not verified.",
         );
         if self.controls != old {
@@ -824,6 +915,7 @@ impl eframe::App for App {
         }
     }
     fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
+        let l = self.language;
         let ctx = ui.ctx().clone();
         if !self.exporting
             && let Some(path) =
@@ -838,10 +930,10 @@ impl eframe::App for App {
         egui::Panel::top("file_bar").show(ui, |ui| {
             ui.add_space(6.0);
             ui.horizontal_wrapped(|ui| {
-                ui.label(RichText::new("Natural Skin").size(20.0).strong());
+                ui.label(RichText::new("Natural Skin").size(16.0).strong());
                 ui.add_space(16.0);
                 if ui
-                    .add_enabled(!self.exporting, egui::Button::new("Open Image…"))
+                    .add_enabled(!self.exporting, egui::Button::new(l.text("Open Image…")))
                     .clicked()
                 {
                     self.open(frame);
@@ -849,7 +941,7 @@ impl eframe::App for App {
                 if ui
                     .add_enabled(
                         self.ready && !self.exporting,
-                        egui::Button::new("Export Result…"),
+                        egui::Button::new(l.text("Export Result…")),
                     )
                     .clicked()
                 {
@@ -859,7 +951,7 @@ impl eframe::App for App {
                     && ui
                         .add_enabled(
                             self.ready && !self.exporting,
-                            egui::Button::new("Apply to PhotoCraft"),
+                            appearance::primary(l.text("Apply to PhotoCraft")),
                         )
                         .clicked()
                 {
@@ -867,15 +959,15 @@ impl eframe::App for App {
                 }
                 if self.desktop.is_some()
                     && ui
-                        .selectable_label(self.connection_page, "Connection…")
+                        .selectable_label(self.connection_page, l.text("Connection…"))
                         .clicked()
                 {
                     self.connection_page = !self.connection_page;
                 }
-                if ui.button("Quit").clicked() {
+                if ui.button(l.text("Quit")).clicked() {
                     self.request_quit(&ctx);
                 }
-                ui.label(RichText::new(&self.info).small());
+                ui.label(RichText::new(l.text(&self.info)).small());
             });
             if let Some(path) = &self.path {
                 ui.label(
@@ -890,7 +982,9 @@ impl eframe::App for App {
                     .small(),
                 );
             }
-            ui.add_space(6.0);
+            ui.separator();
+            self.interface_ui(ui);
+            ui.add_space(4.0);
         });
         egui::Panel::bottom("task_status")
             .min_size(48.0)
@@ -901,20 +995,20 @@ impl eframe::App for App {
                     if self.busy {
                         ui.spinner();
                     }
-                    ui.strong(&self.stage);
+                    ui.strong(l.text(&self.stage));
                     if self.busy {
-                        ui.label(format!(
+                        ui.label(l.text(&format!(
                             "{:.1} s elapsed",
                             self.start.elapsed().as_secs_f64()
-                        ));
+                        )));
                         if ui
                             .add_enabled(
                                 self.opening.is_none() && !self.receiving,
-                                egui::Button::new("Cancel"),
+                                egui::Button::new(l.text("Cancel")),
                             )
-                            .on_disabled_hover_text(
+                            .on_disabled_hover_text(l.text(
                                 "Wait for layer capture or the PhotoCraft open request to finish",
-                            )
+                            ))
                             .clicked()
                         {
                             if self.worker.cancel() {
@@ -930,43 +1024,46 @@ impl eframe::App for App {
                             }
                         }
                     } else {
-                        ui.label(&self.detail);
+                        ui.label(l.text(&self.detail));
                     }
                 });
                 task_progress(ui, self.progress.filter(|_| self.busy));
                 if self.watcher.is_some()
                     && self.desktop.is_none()
                     && !self.busy
-                    && ui.button("Stop Listening").clicked()
+                    && ui.button(l.text("Stop Listening")).clicked()
                 {
                     self.watcher = None;
                     self.stage = "Listener stopped".into();
                 }
                 if let Some(error) = &self.error {
-                    ui.colored_label(ui.visuals().error_fg_color, error);
+                    error_label(ui, l, error);
+                }
+                if let Some(error) = &self.interface_error {
+                    error_label(ui, l, error);
                 }
                 if let Some(state) = &self.desktop
                     && let Some(error) = &state.error
                 {
                     ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Wrap);
-                    ui.colored_label(ui.visuals().error_fg_color, error);
+                    error_label(ui, l, error);
                 }
                 if let Some(path) = &self.saved {
                     ui.horizontal(|ui| {
                         ui.label(
-                            RichText::new(format!(
+                            RichText::new(l.text(&format!(
                                 "Saved: {}",
                                 path.file_name().unwrap_or_default().to_string_lossy()
-                            ))
+                            )))
                             .small(),
                         );
-                        if ui.button("Copy saved path").clicked() {
+                        if ui.button(l.text("Copy saved path")).clicked() {
                             ui.ctx().copy_text(path.display().to_string());
                         }
                     });
                 }
                 if self.queued_open.is_some() {
-                    ui.label("An image will open after the current export completes.");
+                    ui.label(l.text("An image will open after the current export completes."));
                 }
                 ui.add_space(5.0);
             });
@@ -975,60 +1072,63 @@ impl eframe::App for App {
             return;
         }
         egui::Panel::right("adjustments")
-            .exact_size(300.0)
+            .exact_size(appearance::INSPECTOR_WIDTH)
             .resizable(false)
             .show(ui, |ui| {
                 ui.add_space(12.0);
                 ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Wrap);
-                egui::Frame::new().inner_margin(12.0).show(ui, |ui| {
-                    egui::ScrollArea::vertical()
-                        .auto_shrink([false, false])
-                        .show(ui, |ui| {
-                            ui.spacing_mut().slider_width =
-                                (ui.available_width() - 60.0).max(100.0);
-                            ui.add_enabled_ui(self.ready && !self.exporting, |ui| {
-                                self.inspector(ui, frame)
+                egui::Frame::new()
+                    .inner_margin(appearance::INSET)
+                    .show(ui, |ui| {
+                        egui::ScrollArea::vertical()
+                            .auto_shrink([false, false])
+                            .show(ui, |ui| {
+                                ui.spacing_mut().slider_width =
+                                    (ui.available_width() - 60.0).max(100.0);
+                                ui.add_enabled_ui(self.ready && !self.exporting, |ui| {
+                                    self.inspector(ui, frame)
+                                });
                             });
-                        });
-                });
+                    });
             });
         egui::CentralPanel::default().show(ui, |ui| {
             if self.fit_original.is_some() {
                 ui.horizontal(|ui| {
-                    ui.selectable_value(&mut self.show_original, true, "Original");
+                    ui.selectable_value(&mut self.show_original, true, l.text("Original"));
                     ui.selectable_value(
                         &mut self.show_original,
                         false,
-                        if self.controls.mask {
+                        l.text(if self.controls.mask {
                             "Skin mask"
                         } else {
                             "Retouched"
-                        },
+                        }),
                     );
                 });
                 let mut view_changed = false;
                 ui.horizontal_wrapped(|ui| {
                     ui.add_enabled_ui(!self.exporting, |ui| {
                         view_changed |= ui
-                            .selectable_value(&mut self.detail_mode, false, "Fit")
+                            .selectable_value(&mut self.detail_mode, false, l.text("Fit"))
                             .changed();
                         view_changed |= ui
-                            .selectable_value(&mut self.detail_mode, true, "1:1 detail")
+                            .selectable_value(&mut self.detail_mode, true, l.text("1:1 detail"))
                             .changed();
                     });
                     if self.detail_mode {
                         if let Some(crop) = self.detail_crop {
                             preview_note(
                                 ui,
+                                l,
                                 format!(
                                     "x {} · y {} · {} × {} px",
                                     crop.x, crop.y, crop.width, crop.height
                                 ),
                             );
                         }
-                        preview_note(ui, "Drag or use arrow keys to pan");
+                        preview_note(ui, l, "Drag or use arrow keys to pan");
                     } else {
-                        preview_note(ui, "Click image to inspect detail");
+                        preview_note(ui, l, "Click image to inspect detail");
                     }
                 });
                 let area = ui.available_size();
@@ -1064,7 +1164,7 @@ impl eframe::App for App {
                     }
                 }
                 egui::Frame::new()
-                    .fill(Color32::from_rgb(35, 37, 39))
+                    .fill(appearance::canvas())
                     .inner_margin(16.0)
                     .show(ui, |ui| {
                         ui.set_min_size(area - egui::vec2(32.0, 32.0));
@@ -1151,7 +1251,7 @@ impl eframe::App for App {
                                     }
                                 }
                             } else {
-                                ui.label("Preparing preview…");
+                                ui.label(l.text("Preparing preview…"));
                             }
                         });
                     });
@@ -1174,13 +1274,13 @@ impl eframe::App for App {
             } else {
                 ui.centered_and_justified(|ui| {
                     ui.vertical_centered(|ui| {
-                        ui.heading("Open an image");
+                        ui.heading(l.text("Open an image"));
                         ui.add_space(12.0);
-                        ui.label("Open a single-layer .pcraft document or an RGB TIFF.");
-                        ui.label("Drag a file here, or choose Open Image.");
-                        ui.add_space(20.0);
+                        ui.label(l.text("Open a single-layer .pcraft document or an RGB TIFF."));
+                        ui.label(l.text("Drag a file here, or choose Open Image."));
+                        ui.add_space(appearance::SECTION_GAP);
                         if ui
-                            .add_enabled(!self.exporting, egui::Button::new("Open Image…"))
+                            .add_enabled(!self.exporting, egui::Button::new(l.text("Open Image…")))
                             .clicked()
                         {
                             self.open(frame);
@@ -1191,13 +1291,43 @@ impl eframe::App for App {
         });
     }
 }
-fn preview_note(ui: &mut egui::Ui, text: impl Into<String>) -> egui::Response {
-    let foreground = if ui.visuals().dark_mode {
-        Color32::from_gray(180)
-    } else {
-        Color32::from_gray(80)
-    };
-    ui.label(RichText::new(text.into()).small().color(foreground))
+fn adjustment<T: egui::emath::Numeric>(
+    ui: &mut egui::Ui,
+    l: Language,
+    text: &str,
+    value: &mut T,
+    range: std::ops::RangeInclusive<T>,
+) {
+    let text: egui::WidgetText = l.text(text).into();
+    ui.horizontal(|ui| {
+        let label = ui
+            .add_sized([104.0, 26.0], egui::Label::new(text.clone()).truncate().halign(egui::Align::LEFT))
+            .on_hover_text(text);
+        ui.spacing_mut().slider_width = (ui.available_width() - 50.0).max(70.0);
+        ui.add(egui::Slider::new(value, range))
+            .labelled_by(label.id)
+            .on_hover_text(l.text("Drag to adjust, or click the number to type a value. Hold Shift while dragging for finer control."));
+    });
+}
+fn preview_note(ui: &mut egui::Ui, l: Language, text: impl Into<String>) -> egui::Response {
+    ui.label(
+        RichText::new(l.text(&text.into()))
+            .small()
+            .color(ui.visuals().weak_text_color()),
+    )
+}
+fn error_label(ui: &mut egui::Ui, l: Language, error: &str) {
+    ui.style_mut().wrap_mode = Some(egui::TextWrapMode::Wrap);
+    ui.colored_label(ui.visuals().error_fg_color, l.error(error));
+    if l.error(error) != error {
+        ui.push_id(error, |ui| {
+            egui::CollapsingHeader::new(l.text("Technical details"))
+                .default_open(false)
+                .show(ui, |ui| {
+                    ui.label(error);
+                });
+        });
+    }
 }
 fn task_progress(ui: &mut egui::Ui, progress: Option<f32>) {
     // Reserve identical space through indeterminate/numeric/idle states. Detail
@@ -1348,6 +1478,126 @@ fn main() -> eframe::Result {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn painted_text(shapes: &[egui::epaint::ClippedShape]) -> Vec<String> {
+        fn visit(shape: &egui::Shape, output: &mut Vec<String>) {
+            match shape {
+                egui::Shape::Text(text) => output.push(text.galley.text().to_owned()),
+                egui::Shape::Vec(shapes) => shapes.iter().for_each(|shape| visit(shape, output)),
+                _ => (),
+            }
+        }
+        let mut output = Vec::new();
+        for shape in shapes {
+            visit(&shape.shape, &mut output);
+        }
+        output
+    }
+    #[test]
+    fn switching_language_updates_the_actual_workbench_and_preserves_the_image() {
+        let (mut app, ctx, root) = managed();
+        app.connection_page = false;
+        app.ready = true;
+        app.path = Some(root.join("Original 原图.pcraft"));
+        app.source_label = "Original 原图".into();
+        app.source_size = [64, 48];
+        app.stage = "Preview complete".into();
+        app.detail = "12 ms · cached filter".into();
+        app.desktop.as_mut().unwrap().error = Some("Output already exists".into());
+        app.info = "64 × 48  ·  16-bit RGB".into();
+        app.fit_original = Some(ctx.load_texture(
+            "fixture",
+            egui::ColorImage::filled([64, 48], Color32::WHITE),
+            egui::TextureOptions::LINEAR,
+        ));
+        app.original = app.fit_original.clone();
+        app.result = app.fit_original.clone();
+        let original_id = app.original.as_ref().unwrap().id();
+        let mut frame = eframe::Frame::_new_kittest();
+        for size in [[880.0, 620.0], [1120.0, 760.0]] {
+            for appearance in Appearance::ALL {
+                for language in Language::ALL {
+                    app.language = language;
+                    app.appearance = appearance;
+                    app.save_interface(&ctx);
+                    let mut labels = Vec::new();
+                    for _ in 0..2 {
+                        let mut out = ctx.run_ui(
+                            egui::RawInput {
+                                screen_rect: Some(egui::Rect::from_min_size(
+                                    egui::Pos2::ZERO,
+                                    egui::vec2(size[0], size[1]),
+                                )),
+                                ..Default::default()
+                            },
+                            |ui| eframe::App::ui(&mut app, ui, &mut frame),
+                        );
+                        labels = painted_text(&out.shapes);
+                        out.textures_delta.clear();
+                    }
+                    for key in [
+                        "Open Image…",
+                        "Language",
+                        "Skin retouching",
+                        "Strength",
+                        "Original",
+                        "Preview complete",
+                        "12 ms · cached filter",
+                        "Output already exists",
+                    ] {
+                        assert!(
+                            labels.iter().any(|label| label == &language.text(key)),
+                            "{language:?} {appearance:?} {size:?}: missing {key}: {labels:?}"
+                        );
+                        if language == Language::Chinese {
+                            assert!(
+                                !labels.iter().any(|label| label == key),
+                                "Untranslated: {key}"
+                            );
+                        }
+                    }
+                    assert!(labels.iter().any(|label| label == "Original 原图"));
+                    assert_eq!(app.original.as_ref().unwrap().id(), original_id);
+                    assert!(app.ready && !app.busy && app.pending.is_none());
+                    assert_eq!(app.controls, Controls::default());
+                }
+            }
+        }
+        drop(app);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn language_restarts_and_invalid_preferences_are_never_overwritten() {
+        let (mut app, ctx, root) = managed();
+        app.language = Language::Chinese;
+        app.appearance = Appearance::Light;
+        app.save_interface(&ctx);
+        drop(app);
+        let paths = Paths::new(&root).unwrap();
+        let Start::Primary(instance) = Instance::start(&paths, None, false).unwrap() else {
+            panic!()
+        };
+        let cc = eframe::CreationContext::_new_kittest(ctx.clone());
+        let mut app = App::new(
+            &cc,
+            LaunchOptions {
+                desktop: Some(DesktopSession::new(paths, instance)),
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        assert_eq!(app.language, Language::Chinese);
+        assert_eq!(app.appearance, Appearance::Light);
+        let settings = root.join("settings.json");
+        std::fs::write(&settings, b"{broken settings").unwrap();
+        let state = app.desktop.as_mut().unwrap();
+        state.prefs_valid = false;
+        app.language = Language::English;
+        app.save_interface(&ctx);
+        assert_eq!(std::fs::read(&settings).unwrap(), b"{broken settings");
+        assert!(app.interface_error.is_some());
+        drop(app);
+        std::fs::remove_dir_all(root).unwrap();
+    }
     fn managed() -> (App, egui::Context, PathBuf) {
         let root = std::env::temp_dir().join(format!(
             "natural-skin-gui-{}-{}",

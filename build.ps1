@@ -12,5 +12,5 @@ $hashes = foreach ($file in @("natural-skin-companion.exe", "natural-skin.exe"))
 }
 $hashes | Set-Content dist/SHA256SUMS.txt
 $packageItems = Get-ChildItem dist | Where-Object { $_.Extension -ne ".zip" }
-Compress-Archive -Path $packageItems.FullName -DestinationPath dist/Natural-Skin-0.2.0-Windows.zip -Force
+Compress-Archive -Path $packageItems.FullName -DestinationPath dist/Natural-Skin-0.3.0-Windows.zip -Force
 Write-Host "Packaged Natural Skin desktop development build and CLI in dist/."
