@@ -1,5 +1,13 @@
 # Changelog
 
+## Native — Unreleased
+
+- Add physical-pixel 1:1 crop inspection with full filter context, mouse/keyboard panning and source/result/mask comparison.
+- Convert bounded SDR RGB matrix/TRC ICC input through sRGB working space and back to source encoding; preserve unchanged and protected samples; reject unsupported profiles. Add explicit canvas display-ICC output selection.
+- Share immutable-source 256-pixel tile processing between GUI and CLI exports, add filter/cache/tone cancellation checkpoints and throttle background progress.
+- Keep status geometry stable so numeric progress cannot repeatedly invalidate detail previews.
+- Add synthetic skin-shade quality fixtures, ICC reference tests and reproducible 24 MP timing/RSS/cancellation measurements. Portrait, calibrated-monitor and Windows runtime acceptance remain separate.
+
 ## Native 0.2.0 — 2026-11-09
 
 - Add persistent PhotoCraft connection setup and generated one-time Send action installer.

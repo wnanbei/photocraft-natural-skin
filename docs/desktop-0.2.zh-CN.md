@@ -1,5 +1,7 @@
 # Natural Skin 0.2.0 桌面开发版
 
+2026-11-10 后续实现已加入 1:1 局部预览、SDR RGB ICC 转换和分块处理；本页以下验收记录描述 11 月 9 日版本，新增范围及限制见 [本轮报告](quality-color-performance-2026-11-10.zh-CN.md)。
+
 不修改 PhotoCraft，通过现有动作导出所选像素图层，使用独立的 Natural Skin 窗口预览，再将完整处理结果打开为 PhotoCraft 新文档。首版共用 Rust + egui 的 Windows/macOS 代码；两个平台分别编译。
 
 ## 第一次连接

@@ -1,6 +1,11 @@
 //! One background worker, one pending request, generation-checked publication.
-use crate::{Frame, Result, exchange::ImageDocument};
-use natural_skin_core::{NativePreview, NativeStage, retouch_native};
+use crate::{
+    Frame, Result,
+    color::{ColorPipeline, DisplayTransform},
+    exchange::ImageDocument,
+    processing::{self, Crop},
+};
+use natural_skin_core::{NativePreview, NativeStage};
 use serde_json::Value;
 use std::{
     path::PathBuf,
@@ -16,8 +21,10 @@ use std::{
 pub enum Job {
     Load(PathBuf),
     Preview(Value),
+    Detail(Crop, Value),
     Export(PathBuf, Value),
 }
+#[derive(Clone)]
 pub struct PreviewPixels {
     pub width: usize,
     pub height: usize,
@@ -37,17 +44,22 @@ pub enum Event {
         depth: u8,
         original: PreviewPixels,
         label: String,
+        colour: String,
     },
     Rendered {
         id: u64,
         pixels: PreviewPixels,
         cache_hit: bool,
+        original: Option<PreviewPixels>,
         milliseconds: f64,
     },
     Exported {
         id: u64,
         path: PathBuf,
         milliseconds: f64,
+        processing_ms: f64,
+        write_ms: f64,
+        tile_buffer_bytes: usize,
     },
     Failed {
         id: u64,
@@ -166,6 +178,7 @@ struct Session {
     width: usize,
     height: usize,
     scale: f64,
+    cms: ColorPipeline,
 }
 fn current(shared: &Shared, id: u64) -> bool {
     shared.generation.load(Ordering::Acquire) == id
@@ -178,8 +191,17 @@ fn run(
     send: &impl Fn(Event),
 ) -> Result<()> {
     let start = Instant::now();
+    let last_progress = std::cell::RefCell::new((String::new(), Instant::now()));
     let progress = |stage: String, completed, total| {
         if current(shared, id) {
+            let mut last = last_progress.borrow_mut();
+            if last.0 == stage
+                && !(total > 0 && completed == total)
+                && last.1.elapsed().as_millis() < 33
+            {
+                return true;
+            }
+            *last = (stage.clone(), Instant::now());
             send(Event::Progress {
                 id,
                 stage,
@@ -209,17 +231,21 @@ fn run(
             }
             progress("Preparing preview".into(), 0, 0);
             let frame = document.frame();
+            let cms = ColorPipeline::new(frame.icc.as_deref())?;
             let (source, width, height, scale) = proxy(frame);
+            let source = cms.to_working(&source, frame.channels)?;
             let original = display_pixels(&source, width, height, frame.channels);
             let preview = NativePreview::new(source, width, height, frame.channels)
                 .map_err(|e| format!("{e:?}"))?;
             let (full_width, full_height, depth) = (frame.width, frame.height, frame.depth);
+            let colour = cms.description.clone();
             *session = Some(Session {
                 document,
                 preview,
                 width,
                 height,
                 scale,
+                cms,
             });
             if current(shared, id) {
                 send(Event::Loaded {
@@ -229,6 +255,7 @@ fn run(
                     depth,
                     original,
                     label,
+                    colour,
                 });
             }
         }
@@ -240,6 +267,11 @@ fn run(
                 parameters["Radius"] =
                     serde_json::json!((radius * session.scale).round().clamp(1.0, 20.0));
             }
+            let display = DisplayTransform::from_path(
+                parameters["_displayProfile"]
+                    .as_str()
+                    .map(std::path::Path::new),
+            )?;
             let bytes = serde_json::to_vec(&parameters)?;
             let (pixels, report) = session
                 .preview
@@ -251,12 +283,58 @@ fn run(
                 send(Event::Rendered {
                     id,
                     pixels: display_pixels(
-                        &pixels,
+                        &display.convert(&pixels, session.document.frame().channels)?,
                         session.width,
                         session.height,
                         session.document.frame().channels,
                     ),
                     cache_hit: report.cache_hit,
+                    original: Some(display_pixels(
+                        &display
+                            .convert(session.preview.source(), session.document.frame().channels)?,
+                        session.width,
+                        session.height,
+                        session.document.frame().channels,
+                    )),
+                    milliseconds: start.elapsed().as_secs_f64() * 1000.0,
+                });
+            }
+        }
+        Job::Detail(crop, parameters) => {
+            let session = session.as_ref().ok_or("Open an image first")?;
+            let frame = session.document.frame();
+            let display = DisplayTransform::from_path(
+                parameters["_displayProfile"]
+                    .as_str()
+                    .map(std::path::Path::new),
+            )?;
+            let (pixels, _) =
+                processing::render_crop(frame, crop, &parameters, &session.cms, |p| {
+                    progress(stage(p.stage).into(), p.completed, p.total)
+                })?;
+            let source = processing::copy_crop(frame, crop)?;
+            let original = session.cms.to_working(&source, frame.channels)?;
+            let pixels = if parameters["Show_Mask"].as_bool() == Some(true) {
+                pixels
+            } else {
+                session.cms.to_working(&pixels, frame.channels)?
+            };
+            if current(shared, id) {
+                send(Event::Rendered {
+                    id,
+                    pixels: display_pixels(
+                        &display.convert(&pixels, frame.channels)?,
+                        crop.width,
+                        crop.height,
+                        frame.channels,
+                    ),
+                    original: Some(display_pixels(
+                        &display.convert(&original, frame.channels)?,
+                        crop.width,
+                        crop.height,
+                        frame.channels,
+                    )),
+                    cache_hit: false,
                     milliseconds: start.elapsed().as_secs_f64() * 1000.0,
                 });
             }
@@ -264,16 +342,11 @@ fn run(
         Job::Export(path, parameters) => {
             let session = session.as_mut().ok_or("Open an image first")?;
             let frame = session.document.frame();
-            let mut working = frame.pixels.clone();
-            retouch_native(
-                &mut working,
-                frame.width as usize,
-                frame.height as usize,
-                frame.channels,
-                &serde_json::to_vec(&parameters)?,
-                |p| progress(stage(p.stage).into(), p.completed, p.total),
-            )
-            .map_err(|e| format!("{e:?}"))?;
+            let (mut working, report) =
+                processing::process(frame, &parameters, &session.cms, |p| {
+                    progress(stage(p.stage).into(), p.completed, p.total)
+                })?;
+            let processing_ms = start.elapsed().as_secs_f64() * 1000.0;
             {
                 let mut queue = shared.queue.lock().unwrap_or_else(|e| e.into_inner());
                 if !current(shared, id) {
@@ -283,6 +356,7 @@ fn run(
             }
             progress("Writing result".into(), 0, 0);
             std::mem::swap(&mut working, &mut session.document.frame_mut().pixels);
+            let write_start = Instant::now();
             let result = session.document.write(&path);
             // Always restore the immutable source, including on write failure.
             std::mem::swap(&mut working, &mut session.document.frame_mut().pixels);
@@ -291,6 +365,9 @@ fn run(
                 id,
                 path,
                 milliseconds: start.elapsed().as_secs_f64() * 1000.0,
+                processing_ms,
+                write_ms: write_start.elapsed().as_secs_f64() * 1000.0,
+                tile_buffer_bytes: report.tile_buffer_bytes,
             });
         }
     }

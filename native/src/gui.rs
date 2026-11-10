@@ -3,6 +3,7 @@ use eframe::egui::{self, Color32, RichText, TextureHandle};
 use natural_skin_companion::{
     desktop::{self, Instance, Paths, Preferences, Start},
     handoff::{HandoffEvent, HostTarget, Watcher, result_path},
+    processing::Crop,
     startup::LoginStartup,
     worker::{Event, Job, PreviewPixels, Worker},
 };
@@ -112,6 +113,15 @@ struct App {
     original: Option<TextureHandle>,
     result: Option<TextureHandle>,
     show_original: bool,
+    fit_original: Option<TextureHandle>,
+    source_size: [u32; 2],
+    detail_mode: bool,
+    detail_center: [f32; 2],
+    detail_crop: Option<Crop>,
+    detail_viewport: Option<egui::Vec2>,
+    detail_anchor: [f32; 2],
+    colour: String,
+    display_profile: Option<PathBuf>,
     ready: bool,
     busy: bool,
     exporting: bool,
@@ -200,6 +210,15 @@ impl App {
             original: None,
             result: None,
             show_original: false,
+            fit_original: None,
+            source_size: [0; 2],
+            detail_mode: false,
+            detail_center: [0.5; 2],
+            detail_crop: None,
+            detail_viewport: None,
+            detail_anchor: [0.5; 2],
+            colour: String::new(),
+            display_profile: None,
             ready: false,
             busy: false,
             exporting: false,
@@ -243,6 +262,11 @@ impl App {
         self.connection_page = false;
         self.receiving = false;
         self.source_label.clear();
+        self.fit_original = None;
+        self.detail_mode = false;
+        self.detail_crop = None;
+        self.detail_viewport = None;
+        self.colour.clear();
         self.pending = None;
         self.ready = false;
         self.original = None;
@@ -264,16 +288,28 @@ impl App {
     }
     fn preview(&mut self) {
         self.pending = None;
+        let mut parameters = self.controls.parameters(false);
+        if let Some(path) = &self.display_profile {
+            parameters["_displayProfile"] = json!(path);
+        }
         self.begin(
-            Job::Preview(self.controls.parameters(false)),
+            if let Some(crop) = self.detail_crop.filter(|_| self.detail_mode) {
+                Job::Detail(crop, parameters)
+            } else {
+                Job::Preview(parameters)
+            },
             "Updating preview",
         );
     }
-    fn texture(ctx: &egui::Context, p: PreviewPixels, name: &str) -> TextureHandle {
+    fn texture(ctx: &egui::Context, p: PreviewPixels, name: &str, detail: bool) -> TextureHandle {
         ctx.load_texture(
             name,
             egui::ColorImage::from_rgba_unmultiplied([p.width, p.height], &p.rgba),
-            egui::TextureOptions::LINEAR,
+            if detail {
+                egui::TextureOptions::NEAREST
+            } else {
+                egui::TextureOptions::LINEAR
+            },
         )
     }
     fn events(&mut self, ctx: &egui::Context) {
@@ -297,21 +333,31 @@ impl App {
                     depth,
                     original,
                     label,
+                    colour,
                     ..
                 } => {
                     self.source_label = label;
+                    self.colour = colour;
+                    self.source_size = [width, height];
                     self.info = format!("{width} × {height}  ·  {depth}-bit RGB");
-                    self.original = Some(Self::texture(ctx, original, "Original"));
+                    self.original = Some(Self::texture(ctx, original, "Original", false));
+                    self.fit_original = self.original.clone();
                     self.ready = true;
                     self.preview();
                 }
                 Event::Rendered {
                     pixels,
                     cache_hit,
+                    original,
                     milliseconds,
                     ..
                 } => {
-                    self.result = Some(Self::texture(ctx, pixels, "Retouched"));
+                    if let Some(original) = original {
+                        self.original =
+                            Some(Self::texture(ctx, original, "Original", self.detail_mode));
+                    }
+                    self.result = Some(Self::texture(ctx, pixels, "Retouched", self.detail_mode));
+
                     self.busy = false;
                     self.stage = "Preview complete".into();
                     self.detail = format!(
@@ -320,12 +366,23 @@ impl App {
                     );
                 }
                 Event::Exported {
-                    path, milliseconds, ..
+                    path,
+                    milliseconds,
+                    processing_ms,
+                    write_ms,
+                    tile_buffer_bytes,
+                    ..
                 } => {
                     self.busy = false;
                     self.exporting = false;
                     self.stage = "Export complete".into();
-                    self.detail = format!("Saved in {:.2} s", milliseconds / 1000.0);
+                    self.detail = format!(
+                        "Saved in {:.2} s · filter {:.2} s · write {:.2} s · tile buffers ≤ {:.1} MiB",
+                        milliseconds / 1000.0,
+                        processing_ms / 1000.0,
+                        write_ms / 1000.0,
+                        tile_buffer_bytes as f64 / 1048576.0
+                    );
                     self.saved = Some(path.clone());
                     if let Some(state) = &mut self.desktop {
                         state.prefs.last_result = Some(path.clone());
@@ -629,7 +686,7 @@ impl App {
             if let Some(path)=reopen { self.load(path); }
         });
     }
-    fn inspector(&mut self, ui: &mut egui::Ui) {
+    fn inspector(&mut self, ui: &mut egui::Ui, frame: &eframe::Frame) {
         let old = self.controls.clone();
         ui.heading("Skin retouching");
         ui.add_space(12.0);
@@ -667,12 +724,38 @@ impl App {
             self.controls = Controls::default();
         }
         ui.add_space(20.0);
-        ui.label(
-            RichText::new("Fit preview is approximate. Export uses the full-resolution source.")
-                .small(),
+        preview_note(
+            ui,
+            "Fit is approximate. Click the image to inspect 1:1 detail; drag detail to pan. Export uses the full source.",
         );
         ui.add_space(8.0);
-        ui.label(RichText::new("Current colour workflow: sRGB.").small());
+        preview_note(ui, &self.colour);
+        preview_note(
+            ui,
+            if self.display_profile.is_some() {
+                "Display output: selected ICC profile"
+            } else {
+                "Display output: sRGB"
+            },
+        );
+        if ui.button("Display profile…").on_hover_text("Choose the ICC profile matching your display. Use sRGB output if your OS already converts this window to the display profile.").clicked()
+            && let Some(path)=rfd::FileDialog::new().set_parent(frame).add_filter("ICC display profile", &["icc","icm"]).pick_file() {
+            match natural_skin_companion::color::DisplayTransform::from_path(Some(&path)) {
+                Ok(_)=>{self.display_profile=Some(path);self.pending=Some(Instant::now());},
+                Err(e)=>self.error=Some(format!("Display profile was not changed: {e}. Choose a supported SDR RGB matrix/TRC display ICC, or choose Use sRGB output")),
+            }
+        }
+        if let Some(path) = &self.display_profile {
+            preview_note(ui, path.file_name().unwrap_or_default().to_string_lossy());
+            if ui.button("Use sRGB output").clicked() {
+                self.display_profile = None;
+                self.pending = Some(Instant::now());
+            }
+        }
+        preview_note(
+            ui,
+            "SDR only. Monitor calibration and automatic profile switching are not verified.",
+        );
         if self.controls != old {
             // Invalidate the previous result immediately, before the debounce.
             self.worker.cancel();
@@ -814,6 +897,7 @@ impl eframe::App for App {
             .show(ui, |ui| {
                 ui.add_space(5.0);
                 ui.horizontal(|ui| {
+                    ui.set_min_height(32.0);
                     if self.busy {
                         ui.spinner();
                     }
@@ -849,15 +933,7 @@ impl eframe::App for App {
                         ui.label(&self.detail);
                     }
                 });
-                if self.busy
-                    && let Some(progress) = self.progress
-                {
-                    ui.add(
-                        egui::ProgressBar::new(progress)
-                            .show_percentage()
-                            .desired_width(220.0),
-                    );
-                }
+                task_progress(ui, self.progress.filter(|_| self.busy));
                 if self.watcher.is_some()
                     && self.desktop.is_none()
                     && !self.busy
@@ -911,13 +987,13 @@ impl eframe::App for App {
                             ui.spacing_mut().slider_width =
                                 (ui.available_width() - 60.0).max(100.0);
                             ui.add_enabled_ui(self.ready && !self.exporting, |ui| {
-                                self.inspector(ui)
+                                self.inspector(ui, frame)
                             });
                         });
                 });
             });
         egui::CentralPanel::default().show(ui, |ui| {
-            if self.original.is_some() {
+            if self.fit_original.is_some() {
                 ui.horizontal(|ui| {
                     ui.selectable_value(&mut self.show_original, true, "Original");
                     ui.selectable_value(
@@ -930,29 +1006,171 @@ impl eframe::App for App {
                         },
                     );
                 });
-                let texture = if self.show_original {
-                    self.original.as_ref()
-                } else {
-                    self.result.as_ref().or(self.original.as_ref())
-                };
+                let mut view_changed = false;
+                ui.horizontal_wrapped(|ui| {
+                    ui.add_enabled_ui(!self.exporting, |ui| {
+                        view_changed |= ui
+                            .selectable_value(&mut self.detail_mode, false, "Fit")
+                            .changed();
+                        view_changed |= ui
+                            .selectable_value(&mut self.detail_mode, true, "1:1 detail")
+                            .changed();
+                    });
+                    if self.detail_mode {
+                        if let Some(crop) = self.detail_crop {
+                            preview_note(
+                                ui,
+                                format!(
+                                    "x {} · y {} · {} × {} px",
+                                    crop.x, crop.y, crop.width, crop.height
+                                ),
+                            );
+                        }
+                        preview_note(ui, "Drag or use arrow keys to pan");
+                    } else {
+                        preview_note(ui, "Click image to inspect detail");
+                    }
+                });
                 let area = ui.available_size();
+                let pixels_per_point = ctx.pixels_per_point();
+                let mut center_changed = false;
+                if self.detail_mode && !self.exporting && !ctx.egui_wants_keyboard_input() {
+                    let delta = ctx.input(|i| {
+                        let step = if i.modifiers.shift { 256.0 } else { 64.0 };
+                        [
+                            if i.key_pressed(egui::Key::ArrowRight) {
+                                step
+                            } else if i.key_pressed(egui::Key::ArrowLeft) {
+                                -step
+                            } else {
+                                0.0
+                            },
+                            if i.key_pressed(egui::Key::ArrowDown) {
+                                step
+                            } else if i.key_pressed(egui::Key::ArrowUp) {
+                                -step
+                            } else {
+                                0.0
+                            },
+                        ]
+                    });
+                    for (axis, amount) in delta.iter().enumerate() {
+                        if *amount != 0.0 {
+                            self.detail_center[axis] = (self.detail_center[axis]
+                                + amount / self.source_size[axis] as f32)
+                                .clamp(0.0, 1.0);
+                            center_changed = true;
+                        }
+                    }
+                }
                 egui::Frame::new()
                     .fill(Color32::from_rgb(35, 37, 39))
                     .inner_margin(16.0)
                     .show(ui, |ui| {
                         ui.set_min_size(area - egui::vec2(32.0, 32.0));
+                        let viewport = ctx.viewport_rect().size();
+                        if self.detail_mode
+                            && !self.exporting
+                            && (self.detail_viewport != Some(viewport)
+                                || self.detail_anchor != self.detail_center
+                                || view_changed
+                                || self.detail_crop.is_none())
+                        {
+                            let crop = detail_region(
+                                self.source_size,
+                                self.detail_center,
+                                [
+                                    ui.available_width() * pixels_per_point,
+                                    ui.available_height() * pixels_per_point,
+                                ],
+                            );
+                            if self.detail_crop != Some(crop) {
+                                self.detail_crop = Some(crop);
+                                view_changed = true;
+                            }
+                            self.detail_center = [
+                                (crop.x as f32 + crop.width as f32 / 2.0)
+                                    / self.source_size[0] as f32,
+                                (crop.y as f32 + crop.height as f32 / 2.0)
+                                    / self.source_size[1] as f32,
+                            ];
+                            self.detail_viewport = Some(viewport);
+                            self.detail_anchor = self.detail_center;
+                        } else if !self.detail_mode {
+                            self.detail_viewport = None;
+                            self.detail_crop = None;
+                        }
+                        let texture = if self.show_original {
+                            self.original.as_ref()
+                        } else {
+                            self.result.as_ref().or(self.original.as_ref())
+                        };
                         ui.centered_and_justified(|ui| {
-                            if let Some(texture) = texture {
-                                ui.add(
-                                    egui::Image::new(texture).fit_to_exact_size(
-                                        texture.size_vec2()
-                                            * (ui.available_width() / texture.size_vec2().x)
-                                                .min(ui.available_height() / texture.size_vec2().y),
-                                    ),
+                            if let Some(texture) = texture.filter(|_| !view_changed) {
+                                let size = if self.detail_mode {
+                                    texture.size_vec2() / pixels_per_point
+                                } else {
+                                    texture.size_vec2()
+                                        * (ui.available_width() / texture.size_vec2().x)
+                                            .min(ui.available_height() / texture.size_vec2().y)
+                                };
+                                let response = ui.add(
+                                    egui::Image::new(texture)
+                                        .fit_to_exact_size(size)
+                                        .texture_options(if self.detail_mode {
+                                            egui::TextureOptions::NEAREST
+                                        } else {
+                                            egui::TextureOptions::LINEAR
+                                        })
+                                        .sense(egui::Sense::click_and_drag()),
                                 );
+                                if !self.exporting {
+                                    if !self.detail_mode
+                                        && response.clicked()
+                                        && let Some(pos) = response.interact_pointer_pos()
+                                    {
+                                        self.detail_center = [
+                                            ((pos.x - response.rect.left())
+                                                / response.rect.width())
+                                            .clamp(0.0, 1.0),
+                                            ((pos.y - response.rect.top())
+                                                / response.rect.height())
+                                            .clamp(0.0, 1.0),
+                                        ];
+                                        self.detail_mode = true;
+                                        center_changed = true;
+                                    } else if self.detail_mode && response.dragged() {
+                                        let delta = response.drag_delta() * pixels_per_point;
+                                        self.detail_center[0] = (self.detail_center[0]
+                                            - delta.x / self.source_size[0] as f32)
+                                            .clamp(0.0, 1.0);
+                                        self.detail_center[1] = (self.detail_center[1]
+                                            - delta.y / self.source_size[1] as f32)
+                                            .clamp(0.0, 1.0);
+                                        center_changed = true;
+                                    }
+                                }
+                            } else {
+                                ui.label("Preparing preview…");
                             }
                         });
                     });
+                if (view_changed || center_changed) && !self.exporting {
+                    self.worker.cancel();
+                    self.id = u64::MAX;
+                    if !center_changed {
+                        self.original = None;
+                        self.result = None;
+                    }
+                    self.pending = Some(Instant::now() + Duration::from_millis(90));
+                    self.busy = true;
+                    self.progress = None;
+                    self.stage = "Updating preview".into();
+                    self.start = Instant::now();
+                    if !self.detail_mode {
+                        self.original = self.fit_original.clone();
+                    }
+                }
             } else {
                 ui.centered_and_justified(|ui| {
                     ui.vertical_centered(|ui| {
@@ -971,6 +1189,51 @@ impl eframe::App for App {
                 });
             }
         });
+    }
+}
+fn preview_note(ui: &mut egui::Ui, text: impl Into<String>) -> egui::Response {
+    let foreground = if ui.visuals().dark_mode {
+        Color32::from_gray(180)
+    } else {
+        Color32::from_gray(80)
+    };
+    ui.label(RichText::new(text.into()).small().color(foreground))
+}
+fn task_progress(ui: &mut egui::Ui, progress: Option<f32>) {
+    // Reserve identical space through indeterminate/numeric/idle states. Detail
+    // crops depend on canvas size; a changing status height would restart them.
+    ui.allocate_ui_with_layout(
+        egui::vec2(220.0, 18.0),
+        egui::Layout::left_to_right(egui::Align::Center),
+        |ui| {
+            ui.set_min_height(18.0);
+            if let Some(progress) = progress {
+                ui.add(
+                    egui::ProgressBar::new(progress)
+                        .show_percentage()
+                        .desired_width(220.0)
+                        .desired_height(18.0),
+                );
+            }
+        },
+    );
+}
+fn detail_region(size: [u32; 2], center: [f32; 2], available: [f32; 2]) -> Crop {
+    let width = (available[0].floor() as usize)
+        .clamp(1, 1024)
+        .min(size[0] as usize);
+    let height = (available[1].floor() as usize)
+        .clamp(1, 1024)
+        .min(size[1] as usize);
+    Crop {
+        x: ((center[0] * size[0] as f32) as usize)
+            .saturating_sub(width / 2)
+            .min(size[0] as usize - width),
+        y: ((center[1] * size[1] as f32) as usize)
+            .saturating_sub(height / 2)
+            .min(size[1] as usize - height),
+        width,
+        height,
     }
 }
 fn path_label(ui: &mut egui::Ui, path: &std::path::Path) {
@@ -1109,6 +1372,113 @@ mod tests {
         )
         .unwrap();
         (app, ctx, root.canonicalize().unwrap())
+    }
+    #[test]
+    fn detail_view_stays_ready_after_render_and_progress_transitions() {
+        let (mut app, ctx, root) = managed();
+        app.connection_page = false;
+        app.ready = true;
+        app.source_size = [1536, 1024];
+        app.detail_mode = true;
+        ctx.set_pixels_per_point(2.0);
+        app.fit_original = Some(ctx.load_texture(
+            "fit",
+            egui::ColorImage::filled([1024, 682], Color32::WHITE),
+            egui::TextureOptions::LINEAR,
+        ));
+        let mut frame = eframe::Frame::_new_kittest();
+        let mut crops = Vec::new();
+        for i in 0..8 {
+            let crop = app.detail_crop.unwrap_or(Crop {
+                x: 256,
+                y: 0,
+                width: 1024,
+                height: 1024,
+            });
+            app.original = Some(ctx.load_texture(
+                "original",
+                egui::ColorImage::filled([crop.width, crop.height], Color32::WHITE),
+                egui::TextureOptions::NEAREST,
+            ));
+            app.result = app.original.clone();
+            app.pending = None;
+            app.busy = i % 2 == 0;
+            app.progress = if app.busy { Some(0.5) } else { None };
+            if i == 4 {
+                app.error=Some("Display profile was not changed: unsupported grayscale ICC. Keep the previous working output profile.".repeat(3));
+            }
+            let mut output = ctx.run_ui(
+                egui::RawInput {
+                    screen_rect: Some(egui::Rect::from_min_size(
+                        egui::Pos2::ZERO,
+                        egui::vec2(1120.0, 760.0),
+                    )),
+                    ..Default::default()
+                },
+                |ui| {
+                    eframe::App::ui(&mut app, ui, &mut frame);
+                },
+            );
+            output.textures_delta.clear();
+            crops.push(app.detail_crop);
+            if i > 2 {
+                assert!(app.pending.is_none(), "crop invalidation at {i}: {crops:?}");
+            }
+        }
+        drop(app);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn progress_visibility_does_not_resize_the_detail_canvas() {
+        let ctx = egui::Context::default();
+        let mut heights = Vec::new();
+        for progress in [None, Some(0.0), Some(0.5), Some(1.0), None] {
+            let mut output = ctx.run_ui(egui::RawInput::default(), |root_ui| {
+                egui::CentralPanel::default().show(root_ui, |ui| {
+                    heights.push(
+                        ui.scope(|ui| task_progress(ui, progress))
+                            .response
+                            .rect
+                            .height(),
+                    );
+                });
+            });
+            output.textures_delta.clear();
+        }
+        assert!(
+            heights.iter().all(|height| *height == heights[0]),
+            "{heights:?}"
+        );
+    }
+    #[test]
+    fn detail_region_maps_physical_pixels_and_clamps_source_edges() {
+        assert_eq!(
+            detail_region([6000, 4000], [0.5, 0.5], [960.0, 800.0]),
+            Crop {
+                x: 2520,
+                y: 1600,
+                width: 960,
+                height: 800
+            }
+        );
+        assert_eq!(
+            detail_region([64, 48], [1.0, 0.0], [1600.0, 1200.0]),
+            Crop {
+                x: 0,
+                y: 0,
+                width: 64,
+                height: 48
+            }
+        );
+        assert_eq!(
+            detail_region([6000, 4000], [1.0, 1.0], [2000.0, 2000.0]),
+            Crop {
+                x: 4976,
+                y: 2976,
+                width: 1024,
+                height: 1024
+            }
+        );
     }
     #[test]
     fn managed_connection_persists_and_invalid_changes_keep_working_target() {

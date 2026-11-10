@@ -41,3 +41,16 @@ Action-button handoff is a separate, no-control-port experiment. `python3 native
 Desktop 0.2 setup is exercised with `python3 native/tests/probe_handoff.py --desktop`. It starts the GUI with only an isolated `--data-dir`, without `--watch` or `--return-to`. Select the test PhotoCraft bundle in Connection, Enable connection, import the GUI-generated installer, and run Natural Skin Send. Confirm minimize/reentry, mask-safe Apply, a new host document, remembered settings and last-result recovery. `--reuse RUN --desktop` reuses the same isolated state. The helper holds processes; UI actions and pixel comparisons are still required. Never enable the real account's login startup during this probe; the LaunchAgent test uses its own temporary directory.
 
 Settings/activation tests cover invalid-state preservation, single-instance lock recovery, queued opens during export, connection persistence and invalid-target rollback. Windows cross-target checks do not exercise its Run-key registration; real Windows startup and host launch remain acceptance items.
+
+## Detail, colour and resource acceptance
+
+`cargo test` includes full-kernel vs tile/crop seams at maximum radius, RGB/RGBA alpha and metadata preservation, ICC reference conversions, invalid profile refusal, cancellation during cache/filter work, synthetic skin-shade noise/texture checks and stable progress geometry.
+
+```sh
+# Builds must finish before measurements; use a fresh output directory.
+python3 native/tests/benchmark_acceptance.py --output test-output/acceptance-2026-11-10
+# Isolated GUI preparation; UI interaction and screenshots remain manual.
+python3 native/tests/probe_quality_ui.py --run test-output/quality-ui-run --source test-output/acceptance-2026-11-10/quality/synthetic-original.tiff
+```
+
+Check Fit → click a point → 1:1, physical-pixel dimensions, drag and arrow-key panning, Original/Retouched/Mask at the same crop, Fit restoration, resize/minimum-window layout, profile selection/reset/error and full-source export while in detail mode. Profile output is manual and temporary. Inspect synthetic TIFF outputs in the native application; they are not photographs and do not certify portrait quality or a calibrated display. See the [acceptance scope](quality-color-performance-2026-11-10.zh-CN.md).

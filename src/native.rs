@@ -1,8 +1,6 @@
 //! Native execution entry point. Callers retain the source and discard working
 //! pixels on cancellation; no result is published until this returns success.
-use crate::{
-    PLANES, Settings, adjust_skin_tone, process_region, processing_region, regions, show_mask,
-};
+use crate::{PLANES, Settings, adjust_skin_tone, processing_region, regions, show_mask};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NativeStage {
@@ -54,6 +52,9 @@ impl NativePreview {
             basis: Vec::new(),
             key: None,
         })
+    }
+    pub fn source(&self) -> &[f32] {
+        &self.source
     }
     pub fn render(
         &mut self,
@@ -126,8 +127,18 @@ impl NativePreview {
                 crate::FilterBuffers {
                     scratch: &mut scratch,
                     basis: Some(&mut self.basis),
+                    check: &mut || {
+                        progress(NativeProgress {
+                            stage: NativeStage::PrepareCache,
+                            completed: 0,
+                            total: 0,
+                        })
+                    },
                 },
             );
+            if code == 2 {
+                return Err(NativeError::Cancelled);
+            }
             if code != 0 {
                 return Err(NativeError::Kernel);
             }
@@ -252,10 +263,16 @@ pub fn retouch_native(
     };
     if settings.show_mask {
         notify(NativeStage::Mask, 0, 1)?;
-        show_mask(pixels, channels, alpha, settings);
+        for (i, chunk) in pixels.chunks_mut(width * channels * 16).enumerate() {
+            notify(NativeStage::Mask, (i * 16).min(height), height)?;
+            show_mask(chunk, channels, alpha, settings);
+        }
     } else if settings.strength == 0.0 {
         notify(NativeStage::Tone, 0, 1)?;
-        adjust_skin_tone(pixels, channels, alpha, settings, None);
+        for (i, chunk) in pixels.chunks_mut(width * channels * 16).enumerate() {
+            notify(NativeStage::Tone, (i * 16).min(height), height)?;
+            adjust_skin_tone(chunk, channels, alpha, settings, None);
+        }
     } else if let Some(whole) = processing_region(pixels, width, height, channels, alpha, settings)
     {
         let plan = regions::plan(pixels, width, height, channels, alpha, settings, whole);
@@ -276,16 +293,23 @@ pub fn retouch_native(
         for (i, &region) in plan.rectangles().iter().enumerate() {
             notify(NativeStage::Filter, i, count)?;
             let len = region.width * region.height * PLANES;
-            if process_region(
+            let code = crate::process_region_inner::<true>(
                 pixels,
                 width,
                 channels,
                 alpha,
                 settings,
                 region,
-                &mut scratch[..len],
-            ) != 0
-            {
+                crate::FilterBuffers {
+                    scratch: &mut scratch[..len],
+                    basis: None,
+                    check: &mut || notify(NativeStage::Filter, i, count).is_ok(),
+                },
+            );
+            if code == 2 {
+                return Err(NativeError::Cancelled);
+            }
+            if code != 0 {
                 return Err(NativeError::Kernel);
             }
             notify(NativeStage::Filter, i + 1, count)?;
@@ -298,6 +322,37 @@ pub fn retouch_native(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn cancellation_inside_cache_does_not_publish_a_partial_basis() {
+        let source = vec![0.5; 256 * 192 * 3];
+        let mut preview = NativePreview::new(source.clone(), 256, 192, 3).unwrap();
+        let mut checks = 0;
+        assert!(matches!(
+            preview.render(b"{}", |p| {
+                if p.stage == NativeStage::PrepareCache {
+                    checks += 1;
+                }
+                checks < 12
+            }),
+            Err(NativeError::Cancelled)
+        ));
+        assert_eq!(preview.source(), source);
+        let (_, report) = preview.render(b"{}", |_| true).unwrap();
+        assert!(!report.cache_hit);
+        assert!(preview.render(b"{}", |_| true).unwrap().1.cache_hit);
+    }
+    #[test]
+    fn cancellation_reaches_filter_rows_and_tone_rows() {
+        for parameters in [b"{}".as_slice(), br#"{"Strength":0,"skinBrightening":20}"#] {
+            let mut image = vec![0.55; 256 * 192 * 3];
+            let mut count = 0;
+            let result = retouch_native(&mut image, 256, 192, 3, parameters, |_| {
+                count += 1;
+                count < 10
+            });
+            assert!(matches!(result, Err(NativeError::Cancelled)));
+        }
+    }
     #[test]
     fn expanding_skin_range_reuses_basis_outside_the_previous_mask() {
         let (w, h) = (97, 79);

@@ -38,3 +38,7 @@ Windows runtime validation, distribution signing and broad colour-space support 
 ## Action handoff
 
 A native JSON script creates a PhotoCraft action that exports the selected ordinary pixel layer to a dedicated exchange file. A resident Natural Skin receiver raises its separate window, and Apply returns a new host document through OS file opening. This was exercised on macOS with Agent Control disabled. Version 0.2.0 implements one-time connection setup and optional startup. Windows runtime verification remains unfinished. No control token or editor settings changes are required.
+
+## Detail and colour acceptance (2026-11-10)
+
+Fit remains approximate. Physical-pixel detail crops share the export kernel and full source context, with pointer/keyboard navigation. Exports use bounded tiles. SDR RGB matrix/TRC input profiles convert through encoded sRGB and back to original encoding, preserving unchanged/protected samples. Manual display-output ICC selection is preview-only and temporary; monitor discovery, calibrated-display/HDR and real-portrait certification remain open. Synthetic samples are used because the user has no authorized portraits available.

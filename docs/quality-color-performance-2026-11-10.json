@@ -1,0 +1,592 @@
+{
+  "date": "2026-11-10",
+  "status": "development software acceptance passed; external acceptance limits remain",
+  "automatedTestsPassed": 59,
+  "strictClippy": "passed final GUI workspace all targets",
+  "windowsTargetCheck": "passed final x86_64-pc-windows-gnu GUI all targets; no runtime validation",
+  "performance": {
+    "records": {
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "machine": "arm64",
+      "binarySha256": "86a65867c0a78b9eb2e3058b18c8ee00206cf7c277b155b2256098634b27f458",
+      "sourceSha256Unchanged": "424480e5f322a71733ce1e959ba10347d740e63472b3ca8fb9693c2ab721a821",
+      "records": {
+        "quality": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "quality-suite",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/quality"
+          ],
+          "wallMs": 3031.569292070344,
+          "maxRssBytes": 88915968,
+          "result": {
+            "height": 1024,
+            "limitations": [
+              "No human perceptual or portrait acceptance",
+              "Patch noise MAE is a diagnostic, not a skin-quality score"
+            ],
+            "profile": "sRGB",
+            "source": "generated synthetic patches; not portrait acceptance",
+            "variants": [
+              {
+                "alphaMaxDifference": 0.0,
+                "parameters": {
+                  "Radius": 6,
+                  "Strength": 100,
+                  "Texture": 0
+                },
+                "patches": [
+                  {
+                    "resultNoiseMae": 0.0015377907813603317,
+                    "rgb": [
+                      0.8199999928474426,
+                      0.6200000047683716,
+                      0.49000000953674316
+                    ],
+                    "sourceNoiseMae": 0.010270278438422178
+                  },
+                  {
+                    "resultNoiseMae": 0.0015378656650451923,
+                    "rgb": [
+                      0.6499999761581421,
+                      0.4300000071525574,
+                      0.3100000023841858
+                    ],
+                    "sourceNoiseMae": 0.010270335864153601
+                  },
+                  {
+                    "resultNoiseMae": 0.0015378090518817407,
+                    "rgb": [
+                      0.36000001430511475,
+                      0.23000000417232513,
+                      0.17000000178813934
+                    ],
+                    "sourceNoiseMae": 0.010270272159060775
+                  },
+                  {
+                    "resultNoiseMae": 0.0015377230550405318,
+                    "rgb": [
+                      0.8999999761581421,
+                      0.75,
+                      0.6499999761581421
+                    ],
+                    "sourceNoiseMae": 0.010270272159420172
+                  },
+                  {
+                    "resultNoiseMae": 0.0015378451469401848,
+                    "rgb": [
+                      0.5,
+                      0.30000001192092896,
+                      0.20999999344348907
+                    ],
+                    "sourceNoiseMae": 0.010270329718692763
+                  },
+                  {
+                    "resultNoiseMae": 0.001537797597530532,
+                    "rgb": [
+                      0.2199999988079071,
+                      0.14499999582767487,
+                      0.10499999672174454
+                    ],
+                    "sourceNoiseMae": 0.010270265812518052
+                  }
+                ],
+                "protectedRgbMaxDifference": 0.0,
+                "scratchBytes": 2195200,
+                "variant": "smooth"
+              },
+              {
+                "alphaMaxDifference": 0.0,
+                "parameters": {
+                  "Radius": 6,
+                  "Strength": 100,
+                  "Texture": 100
+                },
+                "patches": [
+                  {
+                    "resultNoiseMae": 0.004220040235095954,
+                    "rgb": [
+                      0.8199999928474426,
+                      0.6200000047683716,
+                      0.49000000953674316
+                    ],
+                    "sourceNoiseMae": 0.010270278438422178
+                  },
+                  {
+                    "resultNoiseMae": 0.004220103415779135,
+                    "rgb": [
+                      0.6499999761581421,
+                      0.4300000071525574,
+                      0.3100000023841858
+                    ],
+                    "sourceNoiseMae": 0.010270335864153601
+                  },
+                  {
+                    "resultNoiseMae": 0.004220050196440476,
+                    "rgb": [
+                      0.36000001430511475,
+                      0.23000000417232513,
+                      0.17000000178813934
+                    ],
+                    "sourceNoiseMae": 0.010270272159060775
+                  },
+                  {
+                    "resultNoiseMae": 0.004219998910137178,
+                    "rgb": [
+                      0.8999999761581421,
+                      0.75,
+                      0.6499999761581421
+                    ],
+                    "sourceNoiseMae": 0.010270272159420172
+                  },
+                  {
+                    "resultNoiseMae": 0.0042200675649300586,
+                    "rgb": [
+                      0.5,
+                      0.30000001192092896,
+                      0.20999999344348907
+                    ],
+                    "sourceNoiseMae": 0.010270329718692763
+                  },
+                  {
+                    "resultNoiseMae": 0.0042200353019794445,
+                    "rgb": [
+                      0.2199999988079071,
+                      0.14499999582767487,
+                      0.10499999672174454
+                    ],
+                    "sourceNoiseMae": 0.010270265812518052
+                  }
+                ],
+                "protectedRgbMaxDifference": 0.0,
+                "scratchBytes": 2195200,
+                "variant": "texture"
+              },
+              {
+                "alphaMaxDifference": 0.0,
+                "parameters": {
+                  "Strength": 0,
+                  "skinBrightening": 30,
+                  "skinRosiness": 20
+                },
+                "patches": [
+                  {
+                    "resultNoiseMae": 0.043331150299146554,
+                    "rgb": [
+                      0.8199999928474426,
+                      0.6200000047683716,
+                      0.49000000953674316
+                    ],
+                    "sourceNoiseMae": 0.010270278438422178
+                  },
+                  {
+                    "resultNoiseMae": 0.04806819548691509,
+                    "rgb": [
+                      0.6499999761581421,
+                      0.4300000071525574,
+                      0.3100000023841858
+                    ],
+                    "sourceNoiseMae": 0.010270335864153601
+                  },
+                  {
+                    "resultNoiseMae": 0.03757018096556177,
+                    "rgb": [
+                      0.36000001430511475,
+                      0.23000000417232513,
+                      0.17000000178813934
+                    ],
+                    "sourceNoiseMae": 0.010270272159060775
+                  },
+                  {
+                    "resultNoiseMae": 0.03359318017861428,
+                    "rgb": [
+                      0.8999999761581421,
+                      0.75,
+                      0.6499999761581421
+                    ],
+                    "sourceNoiseMae": 0.010270272159420172
+                  },
+                  {
+                    "resultNoiseMae": 0.04383858840279736,
+                    "rgb": [
+                      0.5,
+                      0.30000001192092896,
+                      0.20999999344348907
+                    ],
+                    "sourceNoiseMae": 0.010270329718692763
+                  },
+                  {
+                    "resultNoiseMae": 0.02740394098406122,
+                    "rgb": [
+                      0.2199999988079071,
+                      0.14499999582767487,
+                      0.10499999672174454
+                    ],
+                    "sourceNoiseMae": 0.010270265812518052
+                  }
+                ],
+                "protectedRgbMaxDifference": 0.0,
+                "scratchBytes": 0,
+                "variant": "tone"
+              },
+              {
+                "alphaMaxDifference": 0.0,
+                "parameters": {
+                  "Show_Mask": true
+                },
+                "patches": [
+                  {
+                    "resultNoiseMae": 0.3566666642824809,
+                    "rgb": [
+                      0.8199999928474426,
+                      0.6200000047683716,
+                      0.49000000953674316
+                    ],
+                    "sourceNoiseMae": 0.010270278438422178
+                  },
+                  {
+                    "resultNoiseMae": 0.5366666714350382,
+                    "rgb": [
+                      0.6499999761581421,
+                      0.4300000071525574,
+                      0.3100000023841858
+                    ],
+                    "sourceNoiseMae": 0.010270335864153601
+                  },
+                  {
+                    "resultNoiseMae": 0.7466666499773661,
+                    "rgb": [
+                      0.36000001430511475,
+                      0.23000000417232513,
+                      0.17000000178813934
+                    ],
+                    "sourceNoiseMae": 0.010270272159060775
+                  },
+                  {
+                    "resultNoiseMae": 0.23333334922790527,
+                    "rgb": [
+                      0.8999999761581421,
+                      0.75,
+                      0.6499999761581421
+                    ],
+                    "sourceNoiseMae": 0.010270272159420172
+                  },
+                  {
+                    "resultNoiseMae": 0.6633333365122477,
+                    "rgb": [
+                      0.5,
+                      0.30000001192092896,
+                      0.20999999344348907
+                    ],
+                    "sourceNoiseMae": 0.010270329718692763
+                  },
+                  {
+                    "resultNoiseMae": 0.8433333237965902,
+                    "rgb": [
+                      0.2199999988079071,
+                      0.14499999582767487,
+                      0.10499999672174454
+                    ],
+                    "sourceNoiseMae": 0.010270265812518052
+                  }
+                ],
+                "protectedRgbMaxDifference": 0.0,
+                "scratchBytes": 0,
+                "variant": "mask"
+              }
+            ],
+            "width": 1536
+          }
+        },
+        "whole_24mp": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "bench",
+            "6000",
+            "4000"
+          ],
+          "wallMs": 4649.295208975673,
+          "maxRssBytes": 1058193408,
+          "result": {
+            "height": 4000,
+            "medianMs": 1465.4261669999999,
+            "method": "bench",
+            "nativeMs": [
+              1462.284334,
+              1465.4261669999999,
+              1513.54925
+            ],
+            "scratchBytes": 672000000,
+            "timing": "source construction, file I/O and host transfer excluded; bench includes scratch + kernel, bench-tiled additionally includes full output allocation/copy",
+            "width": 6000
+          }
+        },
+        "tiled_24mp": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "bench-tiled",
+            "6000",
+            "4000"
+          ],
+          "wallMs": 4847.994750016369,
+          "maxRssBytes": 780206080,
+          "result": {
+            "height": 4000,
+            "medianMs": 1540.786041,
+            "method": "bench-tiled",
+            "nativeMs": [
+              1538.3345,
+              1540.786041,
+              1567.2306250000001
+            ],
+            "scratchBytes": 2195200,
+            "timing": "source construction, file I/O and host transfer excluded; bench includes scratch + kernel, bench-tiled additionally includes full output allocation/copy",
+            "width": 6000
+          }
+        },
+        "cached_preview": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "bench-preview",
+            "1024",
+            "768"
+          ],
+          "wallMs": 140.60233300551772,
+          "maxRssBytes": 68321280,
+          "result": {
+            "basisBytes": 18874368,
+            "firstFrameMs": 47.417292,
+            "height": 768,
+            "medianRemixMs": 16.70125,
+            "remixMs": [
+              16.63625,
+              16.687417,
+              16.70125,
+              16.722458,
+              16.869125
+            ],
+            "timing": "native preview source copy + cached mixing; host transfer, TIFF I/O and display upload excluded",
+            "width": 1024
+          }
+        },
+        "cancel_0": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "bench-cancel",
+            "6000",
+            "4000"
+          ],
+          "wallMs": 147.47516706120223,
+          "maxRssBytes": 782696448,
+          "result": {
+            "cancelLatencyMs": 0.031333,
+            "cancelled": true,
+            "height": 4000,
+            "processingElapsedMs": 56.828541,
+            "scope": "synthetic tiled processing only; no decode, file commit or host transfer",
+            "width": 6000
+          }
+        },
+        "cancel_1": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "bench-cancel",
+            "6000",
+            "4000"
+          ],
+          "wallMs": 147.81812496948987,
+          "maxRssBytes": 782696448,
+          "result": {
+            "cancelLatencyMs": 0.01175,
+            "cancelled": true,
+            "height": 4000,
+            "processingElapsedMs": 57.411083000000005,
+            "scope": "synthetic tiled processing only; no decode, file commit or host transfer",
+            "width": 6000
+          }
+        },
+        "cancel_2": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "bench-cancel",
+            "6000",
+            "4000"
+          ],
+          "wallMs": 146.9435830367729,
+          "maxRssBytes": 782696448,
+          "result": {
+            "cancelLatencyMs": 0.034625,
+            "cancelled": true,
+            "height": 4000,
+            "processingElapsedMs": 56.518791,
+            "scope": "synthetic tiled processing only; no decode, file commit or host transfer",
+            "width": 6000
+          }
+        },
+        "fixture": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "fixture",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/source-24mp.tiff",
+            "16",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/quality/synthetic-original.tiff",
+            "6000",
+            "4000"
+          ],
+          "wallMs": 306.0129579389468,
+          "maxRssBytes": 603488256,
+          "result": null
+        },
+        "workflow_24mp": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "process",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/source-24mp.tiff",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/result-24mp.tiff"
+          ],
+          "wallMs": 4338.450416922569,
+          "maxRssBytes": 973389824,
+          "result": {
+            "colour": "ICC RGB ↔ sRGB · source profile retained",
+            "milliseconds": 4314.766875,
+            "outputBufferBytes": 384000000,
+            "processingMs": 4068.5119160000004,
+            "readMs": 59.600500000000004,
+            "scratchBytes": 2195200,
+            "status": "complete",
+            "tileBufferBytes": 9515776,
+            "tiles": 384,
+            "timing": "read + ICC setup + processing + write; PhotoCraft capture/return and display excluded",
+            "writeMs": 186.623792
+          }
+        },
+        "preservation": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "compare",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/source-24mp.tiff",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/result-24mp.tiff"
+          ],
+          "wallMs": 260.06487500853837,
+          "maxRssBytes": 962412544,
+          "result": {
+            "alphaMaxDifference": 0.0,
+            "depth": 16,
+            "iccBytesEqual": true,
+            "resolutionEqual": true,
+            "transparentPayloadMaxDifference": 0.0,
+            "visibleRgbMaxDifference": 0.009002864360809326
+          }
+        },
+        "identity_workflow": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "process",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/source-24mp.tiff",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/identity-24mp.tiff",
+            "{\"Strength\":0}"
+          ],
+          "wallMs": 2532.611208036542,
+          "maxRssBytes": 967213056,
+          "result": {
+            "colour": "ICC RGB ↔ sRGB · source profile retained",
+            "milliseconds": 2511.4227499999997,
+            "outputBufferBytes": 384000000,
+            "processingMs": 2270.83425,
+            "readMs": 60.311375,
+            "scratchBytes": 0,
+            "status": "complete",
+            "tileBufferBytes": 6291456,
+            "tiles": 384,
+            "timing": "read + ICC setup + processing + write; PhotoCraft capture/return and display excluded",
+            "writeMs": 180.23845799999998
+          }
+        },
+        "identity_comparison": {
+          "command": [
+            "/Users/wnanbei/code/photocraft-natural-skin/target/release/natural-skin-companion",
+            "compare",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/source-24mp.tiff",
+            "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-2026-11-10-verified/identity-24mp.tiff"
+          ],
+          "wallMs": 249.55545796547085,
+          "maxRssBytes": 962396160,
+          "result": {
+            "alphaMaxDifference": 0.0,
+            "depth": 16,
+            "iccBytesEqual": true,
+            "resolutionEqual": true,
+            "transparentPayloadMaxDifference": 0.0,
+            "visibleRgbMaxDifference": 0.0
+          }
+        }
+      },
+      "scope": "Synthetic release build on this machine. File workflow includes read/ICC/process/write; PhotoCraft capture/return and display excluded. RSS is whole child process peak, not scratch allocation."
+    },
+    "rssReductionPercent": 26.269992413333952,
+    "kernelOverheadPercent": 5.142522748469536
+  },
+  "guiSource": "native/src/gui.rs",
+  "guiSha256": "75ee99dd5049cb9cbb96de998a989cbe28ae6fb33e087f25ff1196b38ef7e995",
+  "manualChecks": [
+    "Fit to 1:1 detail completes without recurring invalidation",
+    "Right arrow moves source crop x256 to320",
+    "source/result/mask compare within the same crop",
+    "Display P3 ICC selected in native dialog",
+    "grayscale ICC rejected with prior P3 retained and persistent visible error",
+    "explicit sRGB output reset",
+    "Fit restoration",
+    "independent synthetic test app and configuration only"
+  ],
+  "notValidated": [
+    "authorized real portraits",
+    "calibrated monitor and automatic display profile changes",
+    "Windows runtime",
+    "24 MP PhotoCraft capture/return total time"
+  ],
+  "preservedDesign": "Existing DESIGN.md and .impeccable/design.json left unchanged; pre-existing sidecar drift is not repaired by this extension.",
+  "manualNotCertified": [
+    "mouse-drag navigation (CUA drags inconclusive)",
+    "minimum-window resize (CUA drags inconclusive)",
+    "Windows and dark-mode rendering"
+  ],
+  "captures": {
+    "detail-macos.png": {
+      "path": "/Users/wnanbei/code/photocraft-natural-skin/.impeccable/review/detail-macos.png",
+      "sha256": "1d263e5f12c73e62f20547b7a683f95efa8f09f1a20cc83c1aad9ec7d07ca7b1"
+    },
+    "colour-error-macos.png": {
+      "path": "/Users/wnanbei/code/photocraft-natural-skin/.impeccable/review/colour-error-macos.png",
+      "sha256": "0856782dc2690f094e1616cf5196bc5d2122c52f6642692012df22e9e3b1d7df"
+    },
+    "fit-macos.png": {
+      "path": "/Users/wnanbei/code/photocraft-natural-skin/.impeccable/review/fit-macos.png",
+      "sha256": "8567f651ded969262aaa3e9f70d858d2f16ecd20c2dd86b60f38eddb28d256a0"
+    },
+    "colour-macos.png": {
+      "path": "/Users/wnanbei/code/photocraft-natural-skin/.impeccable/review/colour-macos.png",
+      "sha256": "c38f0d945dc5e64ba10af51f6724333e6875b0a04e594c60b7e16eed44dead0e"
+    },
+    "mask-macos.png": {
+      "path": "/Users/wnanbei/code/photocraft-natural-skin/.impeccable/review/mask-macos.png",
+      "sha256": "a825c0dfef04d8dcd71e42a3697f0081740f8d91676ee96e99d8b360d24a78a8"
+    }
+  },
+  "uiReview": {
+    "disposition": "ship",
+    "scope": "two reviewed fixes, macOS light development build",
+    "materialFixes": {
+      "displayProfileRecovery": "resolved",
+      "guidanceContrast": "resolved, #505050 on light panel ~7.59:1"
+    },
+    "uncertified": [
+      "mouse drag navigation",
+      "minimum-window resize",
+      "Windows rendering",
+      "dark rendering",
+      "calibrated display"
+    ]
+  },
+  "testsLog": "/Users/wnanbei/code/photocraft-natural-skin/test-output/acceptance-ui/final-tests.log",
+  "macosArchiveSha256": "9216a522bd972b168f22067c1819d4712d07a1a3bbe2c3f9fd2abbc736e67650"
+}

@@ -1,10 +1,13 @@
 //! Native companion feasibility backend. RGB TIFF is the high-precision exchange
 //! channel; this does not use clipboard pixels or an 8-bit rendered screenshot.
+pub mod color;
 pub mod control;
 pub mod desktop;
 pub mod exchange;
 pub mod handoff;
 pub mod pcraft;
+pub mod processing;
+pub mod quality;
 pub mod startup;
 pub mod worker;
 use std::{

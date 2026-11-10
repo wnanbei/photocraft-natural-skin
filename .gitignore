@@ -8,3 +8,7 @@ Thumbs.db
 *.log
 
 /native/target/
+
+# Generated native UI review captures and Python test caches.
+/.impeccable/review/
+__pycache__/

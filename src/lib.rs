@@ -12,6 +12,16 @@ pub use native::{
     retouch_native,
 };
 
+/// Unchanged source context needed on each side of an exact-resolution crop.
+pub fn filter_halo(parameters: &[u8]) -> usize {
+    let s = Settings::from_json(parameters);
+    if s.strength == 0.0 || s.show_mask {
+        0
+    } else {
+        2 * s.radius
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 struct Settings {
     strength: f32,
@@ -139,9 +149,23 @@ fn skin_gate(r: f32, g: f32, b: f32, range: f32) -> f32 {
 // O(width * height) separable box mean with replicated image edges.
 // f64 sliding accumulators keep large rows/columns from accumulating a visible drift.
 // The maximum influence is 2 * radius: the manifest supplies 40 pixels on every band.
+#[cfg(test)]
 fn box_mean(data: &mut [f32], temp: &mut [f32], width: usize, height: usize, radius: usize) {
+    box_mean_checked(data, temp, width, height, radius, &mut || true);
+}
+fn box_mean_checked(
+    data: &mut [f32],
+    temp: &mut [f32],
+    width: usize,
+    height: usize,
+    radius: usize,
+    check: &mut dyn FnMut() -> bool,
+) -> bool {
     let inv = 1.0 / (radius * 2 + 1) as f64;
     for y in 0..height {
+        if y % 16 == 0 && !check() {
+            return false;
+        }
         let row = y * width;
         let mut sum = data[row] as f64 * (radius + 1) as f64;
         for k in 1..=radius {
@@ -158,6 +182,9 @@ fn box_mean(data: &mut [f32], temp: &mut [f32], width: usize, height: usize, rad
     // Fixed stack storage works in no_std without an extra image-sized allocation.
     const COLUMNS: usize = 64;
     for start in (0..width).step_by(COLUMNS) {
+        if !check() {
+            return false;
+        }
         let count = COLUMNS.min(width - start);
         let mut sums = [0.0f64; COLUMNS];
         for x in 0..count {
@@ -179,6 +206,7 @@ fn box_mean(data: &mut [f32], temp: &mut [f32], width: usize, height: usize, rad
             }
         }
     }
+    true
 }
 
 #[inline(always)]
@@ -188,6 +216,7 @@ fn temp_input(data: &[f32], index: usize) -> f64 {
 
 // Guided-filter moments always travel in pairs. Share index/border work and keep
 // contiguous row slices so the interpreter does not repeat bounds checks per pixel.
+#[cfg(test)]
 fn box_mean_pair(
     a: &mut [f32],
     b: &mut [f32],
@@ -197,13 +226,29 @@ fn box_mean_pair(
     height: usize,
     radius: usize,
 ) {
+    box_mean_pair_checked(a, b, ta, tb, (width, height), radius, &mut || true);
+}
+fn box_mean_pair_checked(
+    a: &mut [f32],
+    b: &mut [f32],
+    ta: &mut [f32],
+    tb: &mut [f32],
+    shape: (usize, usize),
+    radius: usize,
+    check: &mut dyn FnMut() -> bool,
+) -> bool {
+    let (width, height) = shape;
     let inv = 1.0 / (radius * 2 + 1) as f64;
-    for (((ra, rb), oa), ob) in a
+    for (row_index, (((ra, rb), oa), ob)) in a
         .chunks_exact(width)
         .zip(b.chunks_exact(width))
         .zip(ta.chunks_exact_mut(width))
         .zip(tb.chunks_exact_mut(width))
+        .enumerate()
     {
+        if row_index % 16 == 0 && !check() {
+            return false;
+        }
         let mut sa = ra[0] as f64 * (radius + 1) as f64;
         let mut sb = rb[0] as f64 * (radius + 1) as f64;
         for k in 1..=radius {
@@ -222,6 +267,9 @@ fn box_mean_pair(
     }
     const COLUMNS: usize = 64;
     for start in (0..width).step_by(COLUMNS) {
+        if !check() {
+            return false;
+        }
         let count = COLUMNS.min(width - start);
         let mut sa = [0.0f64; COLUMNS];
         let mut sb = [0.0f64; COLUMNS];
@@ -268,6 +316,7 @@ fn box_mean_pair(
             }
         }
     }
+    true
 }
 
 fn valid_rgb(p: &[f32]) -> bool {
@@ -398,6 +447,7 @@ fn process(
     )
 }
 
+#[cfg(test)]
 fn process_region(
     pixels: &mut [f32],
     image_width: usize,
@@ -421,6 +471,7 @@ fn process_region(
             FilterBuffers {
                 scratch,
                 basis: None,
+                check: &mut || true,
             },
         )
     } else {
@@ -434,6 +485,7 @@ fn process_region(
             FilterBuffers {
                 scratch,
                 basis: None,
+                check: &mut || true,
             },
         )
     }
@@ -442,6 +494,7 @@ fn process_region(
 struct FilterBuffers<'a> {
     scratch: &'a mut [f32],
     basis: Option<&'a mut [f32]>,
+    check: &'a mut dyn FnMut() -> bool,
 }
 
 fn process_region_inner<const CROPPED: bool>(
@@ -453,7 +506,11 @@ fn process_region_inner<const CROPPED: bool>(
     region: Region,
     buffers: FilterBuffers<'_>,
 ) -> i32 {
-    let FilterBuffers { scratch, mut basis } = buffers;
+    let FilterBuffers {
+        scratch,
+        mut basis,
+        check,
+    } = buffers;
     let (width, height) = (region.width, region.height);
     let n = width * height;
     if n.checked_mul(PLANES) != Some(scratch.len()) {
@@ -468,6 +525,9 @@ fn process_region_inner<const CROPPED: bool>(
     let mut opaque = true;
     let mut affected = false;
     for i in 0..n {
+        if i % (width * 16) == 0 && !check() {
+            return 2;
+        }
         let j = pixel_offset::<CROPPED>(i, image_width, channels, region);
         let p = &pixels[j..j + channels];
         let opacity = if alpha { p[3] } else { 1.0 };
@@ -492,28 +552,41 @@ fn process_region_inner<const CROPPED: bool>(
     }
     if !opaque {
         weight_mean.copy_from_slice(weight);
-        box_mean(weight_mean, temp, width, height, settings.radius);
+        if !box_mean_checked(weight_mean, temp, width, height, settings.radius, check) {
+            return 2;
+        }
     }
     let edge = 1.0 - settings.edge;
     let epsilon = 0.00008 + edge * edge * 0.008;
     for channel in 0..3 {
         if opaque {
             for i in 0..n {
+                if i % (width * 16) == 0 && !check() {
+                    return 2;
+                }
                 let v = pixels[pixel_offset::<CROPPED>(i, image_width, channels, region) + channel];
                 a[i] = v;
                 b[i] = v * v;
             }
         } else {
             for i in 0..n {
+                if i % (width * 16) == 0 && !check() {
+                    return 2;
+                }
                 let v = pixels[pixel_offset::<CROPPED>(i, image_width, channels, region) + channel];
                 let v = if weight[i] > 0.0 { v } else { 0.0 };
                 a[i] = v * weight[i];
                 b[i] = v * v * weight[i];
             }
         }
-        box_mean_pair(a, b, temp, source, width, height, settings.radius);
+        if !box_mean_pair_checked(a, b, temp, source, (width, height), settings.radius, check) {
+            return 2;
+        }
         if opaque {
             for i in 0..n {
+                if i % (width * 16) == 0 && !check() {
+                    return 2;
+                }
                 let mean = a[i];
                 let variance = (b[i] - mean * mean).max(0.0);
                 let coefficient = variance / (variance + epsilon);
@@ -522,6 +595,9 @@ fn process_region_inner<const CROPPED: bool>(
             }
         } else {
             for i in 0..n {
+                if i % (width * 16) == 0 && !check() {
+                    return 2;
+                }
                 let w = weight_mean[i];
                 if w > 1.0e-8 {
                     let mean = a[i] / w;
@@ -535,11 +611,16 @@ fn process_region_inner<const CROPPED: bool>(
                 }
             }
         }
-        box_mean_pair(a, b, temp, source, width, height, settings.radius);
+        if !box_mean_pair_checked(a, b, temp, source, (width, height), settings.radius, check) {
+            return 2;
+        }
         // `source` doubles as the second temporary plane while averaging moments.
         // Restore the unchanged input channel before any neighbouring pixels are read.
         if settings.texture > 0.0 {
             for i in 0..n {
+                if i % (width * 16) == 0 && !check() {
+                    return 2;
+                }
                 source[i] = if weight[i] > 0.0 {
                     pixels[pixel_offset::<CROPPED>(i, image_width, channels, region) + channel]
                 } else {
@@ -548,6 +629,9 @@ fn process_region_inner<const CROPPED: bool>(
             }
         }
         for y in 0..height {
+            if y % 16 == 0 && !check() {
+                return 2;
+            }
             let top = y.saturating_sub(1) * width;
             let bottom = (y + 1).min(height - 1) * width;
             let start = ((region.y + y) * image_width + region.x) * channels;
@@ -605,6 +689,9 @@ fn process_region_inner<const CROPPED: bool>(
     // Use the original skin gate, so smoothing never changes the colour-selection boundary.
     if settings.brightening != 0.0 || settings.rosiness != 0.0 {
         for y in 0..height {
+            if y % 16 == 0 && !check() {
+                return 2;
+            }
             let start = ((region.y + y) * image_width + region.x) * channels;
             adjust_skin_tone(
                 &mut pixels[start..start + width * channels],

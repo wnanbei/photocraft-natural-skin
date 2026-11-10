@@ -13,6 +13,7 @@ tiff = "=0.11.3"
 zip = { version = "=9.4.1", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 blake3 = { version = "=1.8.7", default-features = false, features = ["pure", "std"] }
 ruzstd = "=0.9.1"
+moxcms = { version = "=0.8.1", features = ["extended_range"] }
 eframe = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a", default-features = false, features = ["default_fonts", "glow", "x11", "wayland", "accesskit", "system_fonts"], optional = true }
 rfd = { version = "=0.17.2", optional = true }
 

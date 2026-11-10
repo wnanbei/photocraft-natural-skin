@@ -4,7 +4,7 @@ cd -- "$(dirname -- "$0")"
 cargo build --release --features gui --locked --offline --package natural-skin-companion --bins
 mkdir -p dist
 cp target/release/natural-skin-companion target/release/natural-skin dist/
-cp README.md README.zh-CN.md LICENSE CHANGELOG.md SECURITY.md dist/
+cp README.md README.zh-CN.md LICENSE CHANGELOG.md SECURITY.md THIRD_PARTY_NOTICES.md dist/
 cp -R docs dist/
 if [ "$(uname -s)" = Darwin ]; then
   mkdir -p 'dist/Natural Skin.app/Contents/MacOS'

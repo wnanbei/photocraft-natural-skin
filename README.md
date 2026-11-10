@@ -21,9 +21,9 @@ Closing the window minimizes it and keeps receiving; **Quit** exits. Login start
 
 The macOS bundle is locally ad-hoc signed, not notarized. Windows passes cross-target compilation checks but still requires runtime validation on Windows.
 
-The pcraft adapter supports RGB/RGBA U8/U16/F32, alpha, hidden transparent RGB, ICC bytes, DPI, off-canvas tiles and edge padding. It checks ZIP structure, object hashes and resource budgets. Initial scope: one visible Normal raster layer at full opacity/fill, without masks, clipping, effects, selections, extra channels or timelines. Full images are capped at 36 MP. Previews fit within 1024 pixels on the long side and are approximate; exports process the immutable full-resolution source. Show Mask affects preview only.
+The pcraft adapter supports RGB/RGBA U8/U16/F32, alpha, hidden transparent RGB, ICC bytes, DPI, off-canvas tiles and edge padding. It checks ZIP structure, object hashes and resource budgets. Initial scope: one visible Normal raster layer at full opacity/fill, without masks, clipping, effects, selections, extra channels or timelines. Full images are capped at 36 MP. Fit previews are approximate and capped at 1024 pixels on the long side. Click the image or choose 1:1 detail for a physical-pixel crop; drag or use arrow keys to pan. Exports process the immutable full source in bounded tiles. Show Mask affects preview only.
 
-The current display workflow assumes sRGB; ICC metadata preservation is not completed display colour management or certified HDR retouching. Fine-grained filter cancellation and ETA remain development work.
+SDR RGB matrix/TRC ICC profiles are converted to encoded sRGB for processing and back to the source profile on export; untagged input assumes sRGB. Invalid, LUT and PQ/HLG profiles are rejected. An optional display ICC transforms canvas output only. Automatic monitor matching, calibrated-display/real-portrait acceptance and HDR are unverified. Filter/cache/tone checkpoints support cancellation; file commit and some I/O remain non-interruptible. No ETA is shown. See the [implementation and acceptance notes](docs/quality-color-performance-2026-11-10.zh-CN.md).
 
 ```sh
 ./dist/natural-skin-companion process input.pcraft output.pcraft '{"Strength":45}'

@@ -1676,6 +1676,7 @@ dependencies = [
  "blake3",
  "eframe",
  "fmv-macos-events",
+ "moxcms",
  "natural-skin-core",
  "rfd",
  "ruzstd",

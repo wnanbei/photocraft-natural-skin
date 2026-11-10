@@ -1,5 +1,7 @@
-use natural_skin_companion::{Frame, Result, exchange::ImageDocument, fixture};
-use natural_skin_core::{NativePreview, NativeStage, retouch_native};
+use natural_skin_companion::{
+    Frame, Result, color::ColorPipeline, exchange::ImageDocument, fixture, processing,
+};
+use natural_skin_core::{NativePreview, retouch_native};
 use serde_json::json;
 use std::{env, path::Path, time::Instant};
 
@@ -20,8 +22,14 @@ fn main() -> Result<()> {
     match args.get(1).map(String::as_str) {
         None | Some("--help") | Some("-h") => {
             println!(
-                "Natural Skin native image backend\n\nCommands:\n  fixture OUTPUT DEPTH [ICC_SOURCE] [WIDTH HEIGHT]\n  inspect INPUT\n  process INPUT OUTPUT [PARAMETERS_JSON]\n  compare FIRST SECOND\n  bench WIDTH HEIGHT\n  bench-preview WIDTH HEIGHT\n  handoff-action EXCHANGE_DIR OUTPUT.json [ACTION_NAME]\n  control-inspect LOOPBACK:PORT TOKEN_FILE\n  control-check LOOPBACK:PORT TOKEN_FILE SOURCE_TICKET.json\n  dump INPUT (small conformance fixtures only)\n\nINPUT/OUTPUT: .pcraft (single raster) or RGB .tif.\nThis is the CLI backend. Run natural-skin for the desktop interface."
+                "Natural Skin native image backend\n\nCommands:\n  fixture OUTPUT DEPTH [ICC_SOURCE] [WIDTH HEIGHT]\n  inspect INPUT\n  process INPUT OUTPUT [PARAMETERS_JSON]\n  compare FIRST SECOND\n  bench WIDTH HEIGHT\n  bench-tiled WIDTH HEIGHT\n  bench-cancel WIDTH HEIGHT\n  quality-suite OUTPUT_DIRECTORY\n  bench-preview WIDTH HEIGHT\n  handoff-action EXCHANGE_DIR OUTPUT.json [ACTION_NAME]\n  control-inspect LOOPBACK:PORT TOKEN_FILE\n  control-check LOOPBACK:PORT TOKEN_FILE SOURCE_TICKET.json\n  dump INPUT (small conformance fixtures only)\n\nINPUT/OUTPUT: .pcraft (single raster) or RGB .tif.\nThis is the CLI backend. Run natural-skin for the desktop interface."
             );
+        }
+        Some("quality-suite") => {
+            let report = natural_skin_companion::quality::run(Path::new(
+                args.get(2).ok_or("Missing output directory")?,
+            ))?;
+            println!("{}", report);
         }
         Some("--version") => println!("Natural Skin native backend {}", env!("CARGO_PKG_VERSION")),
         Some("handoff-action") => {
@@ -91,26 +99,36 @@ fn main() -> Result<()> {
         }
         Some("process") => {
             let start = Instant::now();
-            eprintln!("{}", json!({"stage":"Read","elapsedMs":0}));
             let mut document = ImageDocument::read(Path::new(args.get(2).ok_or("Missing input")?))?;
-            let image = document.frame_mut();
-            let params = args.get(4).map_or("{}", String::as_str);
-            let _: serde_json::Value = serde_json::from_str(params)?;
-            let summary=retouch_native(&mut image.pixels,image.width as usize,image.height as usize,image.channels,params.as_bytes(),|p|{
-                eprintln!("{}",json!({"stage":if p.stage==NativeStage::Complete {"RetouchReady".to_string()} else {format!("{:?}",p.stage)},"completed":p.completed,"total":p.total,"elapsedMs":start.elapsed().as_secs_f64()*1000.0}));true
-            }).map_err(|e|format!("Native processing failed: {e:?}"))?;
-            eprintln!(
-                "{}",
-                json!({"stage":"Write","elapsedMs":start.elapsed().as_secs_f64()*1000.0})
-            );
+            let read_ms = start.elapsed().as_secs_f64() * 1000.0;
+            let params: serde_json::Value =
+                serde_json::from_str(args.get(4).map_or("{}", String::as_str))?;
+            let cms = ColorPipeline::new(document.frame().icc.as_deref())?;
+            let processing_start = Instant::now();
+            let last_step = std::cell::Cell::new(usize::MAX);
+            let (output, report) = processing::process(document.frame(), &params, &cms, |p| {
+                if last_step.replace(p.completed) != p.completed {
+                    eprintln!(
+                        "{}",
+                        json!({"stage":format!("{:?}",p.stage),"completed":p.completed,"total":p.total,"elapsedMs":start.elapsed().as_secs_f64()*1000.0})
+                    );
+                }
+                true
+            })?;
+            let processing_ms = processing_start.elapsed().as_secs_f64() * 1000.0;
+            document.frame_mut().pixels = output;
+            if params["Show_Mask"].as_bool() == Some(true) {
+                document.frame_mut().icc = Some(moxcms::ColorProfile::new_srgb().encode()?);
+            }
+            let write_start = Instant::now();
             document.write(Path::new(args.get(3).ok_or("Missing output")?))?;
-            eprintln!(
-                "{}",
-                json!({"stage":"Complete","elapsedMs":start.elapsed().as_secs_f64()*1000.0})
-            );
             println!(
                 "{}",
-                json!({"status":"complete","milliseconds":start.elapsed().as_secs_f64()*1000.0,"scratchBytes":summary.scratch_bytes,"regions":summary.regions})
+                json!({"status":"complete","milliseconds":start.elapsed().as_secs_f64()*1000.0,
+                "readMs":read_ms,"processingMs":processing_ms,"writeMs":write_start.elapsed().as_secs_f64()*1000.0,
+                "scratchBytes":report.scratch_bytes,"tileBufferBytes":report.tile_buffer_bytes,"tiles":report.tiles,
+                "outputBufferBytes":document.frame().pixels.len()*4,"colour":cms.description,
+                "timing":"read + ICC setup + processing + write; PhotoCraft capture/return and display excluded"})
             );
         }
         Some("compare") => {
@@ -191,7 +209,52 @@ fn main() -> Result<()> {
                 json!({"width":image.width,"height":image.height,"channels":image.channels,"depth":image.depth,"pixels":image.pixels})
             );
         }
-        Some("bench") => {
+        Some("bench-cancel") => {
+            use std::sync::{Arc, OnceLock};
+            let width: u32 = args.get(2).ok_or("Missing width")?.parse()?;
+            let height: u32 = args.get(3).ok_or("Missing height")?.parse()?;
+            if width == 0 || height == 0 || u64::from(width) * u64::from(height) > 36_000_000 {
+                return Err("Image must be within 36 MP".into());
+            }
+            let image = fixture(width, height, 32, None);
+            let cms = ColorPipeline::new(None)?;
+            let requested = Arc::new(OnceLock::new());
+            let request = requested.clone();
+            let (send, receive) = std::sync::mpsc::channel();
+            let timer = std::thread::spawn(move || {
+                if receive.recv().is_ok() {
+                    std::thread::sleep(std::time::Duration::from_millis(20));
+                    let _ = request.set(Instant::now());
+                }
+            });
+            let mut initialized = false;
+            let mut armed = false;
+            let start = Instant::now();
+            let result = processing::process(&image, &json!({"Radius":20}), &cms, |p| {
+                if p.stage == natural_skin_core::NativeStage::Analyze {
+                    initialized = true;
+                }
+                if initialized && !armed && p.stage == natural_skin_core::NativeStage::Filter {
+                    let _ = send.send(());
+                    armed = true;
+                }
+                requested.get().is_none()
+            });
+            let returned = Instant::now();
+            drop(send);
+            timer.join().map_err(|_| "Cancellation timer failed")?;
+            if result.is_ok() {
+                return Err("Image completed before cancellation; use a larger image".into());
+            }
+            println!(
+                "{}",
+                json!({"width":width,"height":height,"cancelled":true,
+                "processingElapsedMs":returned.duration_since(start).as_secs_f64()*1000.0,
+                "cancelLatencyMs":returned.duration_since(*requested.get().ok_or("No cancellation request")?).as_secs_f64()*1000.0,
+                "scope":"synthetic tiled processing only; no decode, file commit or host transfer"})
+            );
+        }
+        Some(command @ ("bench" | "bench-tiled")) => {
             let width: u32 = args.get(2).ok_or("Missing width")?.parse()?;
             let height: u32 = args.get(3).ok_or("Missing height")?.parse()?;
             if u64::from(width) * u64::from(height) > 36_000_000 || width == 0 || height == 0 {
@@ -202,22 +265,29 @@ fn main() -> Result<()> {
             for _ in 0..3 {
                 let mut image = fixture(width, height, 32, None);
                 let start = Instant::now();
-                let r = retouch_native(
-                    &mut image.pixels,
-                    width as usize,
-                    height as usize,
-                    4,
-                    b"{}",
-                    |_| true,
-                )
-                .map_err(|e| format!("{e:?}"))?;
+                let scratch_bytes = if command == "bench-tiled" {
+                    let cms = ColorPipeline::new(None)?;
+                    let (_, r) = processing::process(&image, &json!({}), &cms, |_| true)?;
+                    r.scratch_bytes
+                } else {
+                    let r = retouch_native(
+                        &mut image.pixels,
+                        width as usize,
+                        height as usize,
+                        4,
+                        b"{}",
+                        |_| true,
+                    )
+                    .map_err(|e| format!("{e:?}"))?;
+                    r.scratch_bytes
+                };
                 samples.push(start.elapsed().as_secs_f64() * 1000.0);
-                scratch = r.scratch_bytes;
+                scratch = scratch_bytes;
             }
             samples.sort_by(f64::total_cmp);
             println!(
                 "{}",
-                json!({"width":width,"height":height,"nativeMs":samples,"medianMs":samples[1],"scratchBytes":scratch,"timing":"allocation + native kernel only; source construction, TIFF I/O and host transfer excluded"})
+                json!({"width":width,"height":height,"nativeMs":samples,"medianMs":samples[1],"scratchBytes":scratch,"method":command,"timing":"source construction, file I/O and host transfer excluded; bench includes scratch + kernel, bench-tiled additionally includes full output allocation/copy"})
             );
         }
         _ => {
