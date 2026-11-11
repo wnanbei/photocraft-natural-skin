@@ -1,5 +1,10 @@
 # Changelog
 
+## Native — Unreleased
+
+- Publish complete native GitHub Releases on `native-v*` tags, with Windows x64, Apple Silicon/Intel Mac packages, tagged changelog notes and ZIP SHA-256 checksums. Allow manual backfills without moving existing tags.
+- Derive package names and macOS bundle versions from the native Cargo version; include the CLI in new macOS bundles and exclude stale files from Windows portable archives.
+
 ## Native 0.3.0 — 2026-11-11
 
 - Align the workbench with PhotoCraft Pro: Dark/Gray/Light palettes, system appearance, Inter typography, flat section strips and compact adjustment rows.

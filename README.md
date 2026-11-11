@@ -2,6 +2,8 @@
 
 A native PhotoCraft companion built with **Rust + egui for Windows and macOS**. PhotoCraft itself stays unchanged; the WASM product has been retired.
 
+Download versioned software from [GitHub Releases](https://github.com/wnanbei/photocraft-natural-skin/releases). Pushing a `native-v*` tag runs native builds for Windows x64 and both Mac architectures, then publishes the ZIPs and SHA-256 checksums as long-lived release assets. See [release instructions](docs/releasing.md).
+
 The desktop development build opens a single-raster `.pcraft` or RGB TIFF, offers asynchronous cached previews, original/result comparison, a skin mask and retouch/tone controls, and exports a new full-resolution `.pcraft`. It shows actual stages and elapsed time, supports cancellation, and discards stale preview results. Version **0.3.0** adds a PhotoCraft-style workbench, independent Chinese/English selection, 1:1 detail inspection, SDR ICC processing and tiled exports. Persistent connection setup, single-instance activation, optional login startup and last-result recovery remain available. The [action handoff](docs/handoff-route-2026-11-09.zh-CN.md) captures a layer and returns a new host document without the editor control port.
 
 [简体中文](README.zh-CN.md) · [Development and validation](docs/native-development-2026-11-08.zh-CN.md) · [Testing](docs/testing.md)

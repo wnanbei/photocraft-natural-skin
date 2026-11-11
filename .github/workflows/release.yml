@@ -1,0 +1,146 @@
+name: Native Release
+
+on:
+  push:
+    tags: ['native-v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing native version tag to publish (for example native-v0.3.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+      commit: ${{ steps.version.outputs.commit }}
+      published: ${{ steps.draft.outputs.published }}
+    steps:
+      # Dispatch uses the current workflow tools even when the source tag predates them.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test release tooling
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Validate tag, manifest, lockfile and changelog
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: python3 scripts/native_release.py prepare --tag "$RELEASE_TAG" --output "$GITHUB_OUTPUT"
+
+      - name: Create or resume an unpublished release
+        id: draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_COMMIT: ${{ steps.version.outputs.commit }}
+        run: python3 scripts/native_release.py draft --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT" --output "$GITHUB_OUTPUT"
+
+  build:
+    name: Package (${{ matrix.platform }})
+    needs: prepare
+    if: needs.prepare.outputs.published != 'true'
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: macOS-arm64
+          - os: macos-15-intel
+            platform: macOS-x86_64
+          - os: windows-latest
+            platform: Windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+      RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+      RELEASE_COMMIT: ${{ needs.prepare.outputs.commit }}
+      RELEASE_ARCHIVE: Natural-Skin-${{ needs.prepare.outputs.version }}-${{ matrix.platform }}.zip
+    steps:
+      # Build exactly the validated tag commit, never the current main branch.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.commit }}
+          persist-credentials: false
+      - name: Install Rust components
+        run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+      - name: Fetch locked dependencies
+        run: cargo fetch --locked
+      - name: Check formatting
+        run: cargo fmt --all --check
+      - name: Lint desktop workspace
+        run: cargo clippy --workspace --all-targets --features gui --locked --offline -- -D warnings
+      - name: Test native backend and GUI
+        run: cargo test --workspace --features gui --locked --offline
+      - name: Package macOS
+        if: runner.os == 'macOS'
+        run: sh build.sh
+      - name: Verify macOS package
+        if: runner.os == 'macOS'
+        run: |
+          test "$(./dist/natural-skin-companion --version)" = "Natural Skin native backend $RELEASE_VERSION"
+          test -s "dist/$RELEASE_ARCHIVE"
+          codesign --verify --deep --strict 'dist/Natural Skin.app'
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./build.ps1
+      - name: Verify Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = & ./dist/natural-skin-companion.exe --version
+          if ($LASTEXITCODE -ne 0 -or $version -ne "Natural Skin native backend $env:RELEASE_VERSION") {
+            throw 'Built executable does not match the release version'
+          }
+          if (-not (Test-Path "dist/$env:RELEASE_ARCHIVE" -PathType Leaf)) {
+            throw 'Versioned Windows archive was not produced'
+          }
+      - name: Upload package directly to the unpublished release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api "repos/$GITHUB_REPOSITORY/commits/$RELEASE_TAG" --jq .sha)" = "$RELEASE_COMMIT"
+          test "$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
+          gh release upload "$RELEASE_TAG" "dist/$RELEASE_ARCHIVE" --repo "$GITHUB_REPOSITORY" --clobber
+
+  publish:
+    name: Publish complete GitHub Release
+    needs: [prepare, build]
+    if: needs.prepare.outputs.published != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate packages, attach checksums and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+          RELEASE_COMMIT: ${{ needs.prepare.outputs.commit }}
+        run: python3 scripts/native_release.py publish --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT" --directory release --download
