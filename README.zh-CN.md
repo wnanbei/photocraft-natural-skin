@@ -2,7 +2,7 @@
 
 面向 PhotoCraft 的原生磨皮伴随程序。**首版按 Windows/macOS 共用的 Rust + egui 界面开发**，不修改 PhotoCraft，也不再维护 WASM 版本。
 
-版本软件下载见 [GitHub Releases](https://github.com/wnanbei/photocraft-natural-skin/releases)。推送 `native-v*` 标签后，会自动为 Windows x64、Apple Silicon 和 Intel Mac 测试打包，将 ZIP 和 SHA-256 校验文件作为 Release 资产长期保存。已有标签可通过 Actions → Native Release 手动补发；详见 [发布说明](docs/releasing.md)。
+版本软件下载见 [GitHub Releases](https://github.com/wnanbei/photocraft-natural-skin/releases)。推送 `native-v*` 标签后，会自动为 Windows x64 和 Apple Silicon Mac 测试打包，将 ZIP 和 SHA-256 校验文件作为 Release 资产长期保存。已有标签可通过 Actions → Native Release 手动补发；详见 [发布说明](docs/releasing.md)。
 
 当前桌面开发版 **0.3.0** 新增 PhotoCraft 风格外观、独立中英文界面、1:1 细节预览、SDR ICC 转换和分块导出。支持连接设置、单实例唤回、可选登录启动和结果找回；普通启动无需命令行参数。它还提供：打开单层 `.pcraft` 或 RGB TIFF、后台预览、原图/结果切换、皮肤蒙版、参数调节、取消、阶段及耗时显示、全分辨率导出新 `.pcraft`。预览基础缓存在进程内复用，连续拖动参数时丢弃过期结果。
 

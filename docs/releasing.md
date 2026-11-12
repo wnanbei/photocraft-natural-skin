@@ -4,13 +4,14 @@ The **Native Release** workflow in `.github/workflows/release.yml` publishes ver
 
 ## Published packages
 
-Every release requires all three packages:
+Every new release requires both supported platform packages:
 
 | Package suffix | Architecture | Contents |
 | --- | --- | --- |
 | `macOS-arm64.zip` | Apple Silicon | `Natural Skin.app` |
-| `macOS-x86_64.zip` | Intel Mac | `Natural Skin.app` |
 | `Windows.zip` | Windows x64 | GUI and CLI executables, docs, licenses and binary checksums |
+
+Intel Mac is no longer included in automated release builds. Assets in already published releases remain unchanged.
 
 Each filename starts with `Natural-Skin-<version>-`. The Release also includes **`SHA256SUMS.txt`**, covering the exact downloadable ZIP files. Release notes come from that version's tagged CHANGELOG section and record the source tag and commit.
 
@@ -31,9 +32,9 @@ The example assumes the committed native manifest, lockfile and CHANGELOG have a
 The workflow:
 
 1. Resolves the existing native tag to an immutable source commit and validates its version/changelog. It rejects historical WASM tags.
-2. Runs formatting, strict Clippy, all Rust tests and release builds on Windows x64, macOS Apple Silicon and macOS Intel.
+2. Runs formatting, strict Clippy, all Rust tests and release builds on Windows x64 and macOS Apple Silicon.
 3. Checks the executable version, produces a versioned package for each platform and uploads it directly to the unpublished draft. macOS bundles also undergo signature verification.
-4. After every platform succeeds, downloads all three ZIPs from the draft, checks archive integrity, expected executables and macOS bundle versions, and generates ZIP checksums.
+4. After every platform succeeds, downloads both ZIPs from the draft, checks archive integrity, expected executables and macOS bundle versions, and generates ZIP checksums.
 5. Confirms the remote tag still points to the validated commit, attaches the checked assets and checksum file, then publishes the complete Release.
 
 A failed build/upload never publishes a partial new release. Failed uploads can leave a private draft, which the workflow can resume. Published releases are not overwritten on retry. Release jobs use `contents: write` for draft creation, package upload and final publication; the token is exposed only to the steps that access Releases. Checkout does not persist credentials, and actions are pinned. The workflow uses its short-lived `GITHUB_TOKEN`; no personal access token or new secret is needed.

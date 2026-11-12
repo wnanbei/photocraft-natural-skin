@@ -2,7 +2,7 @@
 
 ## Native — Unreleased
 
-- Publish complete native GitHub Releases on `native-v*` tags, with Windows x64, Apple Silicon/Intel Mac packages, tagged changelog notes and ZIP SHA-256 checksums. Allow manual backfills without moving existing tags.
+- Publish complete native GitHub Releases on `native-v*` tags, with Windows x64 and Apple Silicon Mac packages, tagged changelog notes and ZIP SHA-256 checksums. Allow manual backfills without moving existing tags.
 - Derive package names and macOS bundle versions from the native Cargo version; include the CLI in new macOS bundles and exclude stale files from Windows portable archives.
 
 ## Native 0.3.0 — 2026-11-11

@@ -72,7 +72,7 @@ class ReleaseTests(unittest.TestCase):
             directory = Path(temp)
             self.packages(directory)
             (directory / release.archive_names("0.3.0")[1]).unlink()
-            with self.assertRaisesRegex(release.ReleaseError, "all three"):
+            with self.assertRaisesRegex(release.ReleaseError, "all supported"):
                 release.assemble(directory, self.metadata())
             self.assertFalse((directory / "SHA256SUMS.txt").exists())
 
@@ -98,7 +98,11 @@ class ReleaseTests(unittest.TestCase):
             directory = Path(temp)
             self.packages(directory)
             assets = release.assemble(directory, self.metadata())
-            self.assertEqual(len(assets), 4)
+            self.assertEqual({asset.name for asset in assets}, {
+                "Natural-Skin-0.3.0-macOS-arm64.zip",
+                "Natural-Skin-0.3.0-Windows.zip",
+                "SHA256SUMS.txt",
+            })
             for line in (directory / "SHA256SUMS.txt").read_text().splitlines():
                 digest, name = line.split("  ")
                 self.assertEqual(digest, hashlib.sha256((directory / name).read_bytes()).hexdigest())
@@ -106,6 +110,8 @@ class ReleaseTests(unittest.TestCase):
             self.assertIn("a" * 40, notes)
             self.assertIn("native-v0.3.0", notes)
             self.assertIn("not Apple notarization", notes)
+            self.assertNotIn("Intel", notes)
+            self.assertNotIn("macOS-x86_64", notes)
 
     def test_prereleases_and_older_backfills_do_not_replace_latest(self):
         self.assertFalse(release.is_latest("0.4.0-rc.1", []))

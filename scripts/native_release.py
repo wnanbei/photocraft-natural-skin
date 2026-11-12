@@ -12,7 +12,7 @@ import tomllib
 import zipfile
 
 PREFIX = "native-v"
-PLATFORMS = ("macOS-arm64", "macOS-x86_64", "Windows")
+PLATFORMS = ("macOS-arm64", "Windows")
 SEMVER = re.compile(
     r"(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
     r"(?:-(?P<pre>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
@@ -107,7 +107,7 @@ def assemble(directory, metadata):
     expected = archive_names(metadata["version"])
     actual = sorted(path.name for path in directory.glob("*.zip"))
     if actual != sorted(expected):
-        raise ReleaseError(f"Expected all three platform packages: {expected}; found: {actual}")
+        raise ReleaseError(f"Expected all supported platform packages: {expected}; found: {actual}")
     checksums = []
     for name, platform in zip(expected, PLATFORMS):
         path = directory / name
@@ -122,7 +122,6 @@ def assemble(directory, metadata):
         f"# Natural Skin Native {metadata['version']}\n\n{metadata['notes']}\n\n"
         "## Downloads\n\n"
         "- **macOS Apple Silicon:** choose the `macOS-arm64.zip` package.\n"
-        "- **macOS Intel:** choose the `macOS-x86_64.zip` package.\n"
         "- **Windows x64:** choose the `Windows.zip` portable package and run `natural-skin.exe`.\n\n"
         "Verify downloaded ZIPs against `SHA256SUMS.txt`. Release assets stay attached to this "
         "version; the temporary Actions artifact retention does not apply to them.\n\n"
