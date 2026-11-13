@@ -16,7 +16,7 @@ blake3 = { version = "=1.8.7", default-features = false, features = ["pure", "st
 ruzstd = "=0.9.1"
 moxcms = { version = "=0.8.1", features = ["extended_range"] }
 eframe = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a", default-features = false, features = ["default_fonts", "glow", "x11", "wayland", "accesskit", "system_fonts"], optional = true }
-rfd = { version = "=0.17.2", optional = true }
+rfd = { version = "=0.18.0", optional = true }
 
 [features]
 gui = ["dep:eframe", "dep:rfd", "dep:fmv-macos-events", "dep:objc2", "dep:objc2-app-kit", "dep:objc2-foundation"]
